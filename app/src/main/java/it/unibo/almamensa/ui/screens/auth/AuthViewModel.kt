@@ -1,0 +1,58 @@
+package it.unibo.almamensa.ui.screens.auth
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import it.unibo.almamensa.data.repositories.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+data class AuthState(
+    val email: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val isSuccess: Boolean = false
+)
+
+class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
+
+    private val _state = MutableStateFlow(AuthState())
+    val state: StateFlow<AuthState> = _state.asStateFlow()
+
+    fun onEmailChange(email: String) {
+        _state.value = _state.value.copy(email = email)
+    }
+
+    fun signIn(password: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            try {
+                authRepository.signIn(_state.value.email, password)
+                _state.value = _state.value.copy(isSuccess = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign in failed")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun signUp(password: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            try {
+                authRepository.signUp(_state.value.email, password)
+                _state.value = _state.value.copy(isSuccess = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign up failed")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun resetSuccess() {
+        _state.value = _state.value.copy(isSuccess = false)
+    }
+}

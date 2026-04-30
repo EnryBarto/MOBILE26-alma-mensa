@@ -69,15 +69,21 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Ktor 3.x (Required by Supabase 3.x)
+    // Ktor (Required by Supabase)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
 
-    // Supabase 3.x
+    // Supabase
     implementation(libs.postgrest.kt)
     implementation(libs.auth.kt)
     implementation(libs.realtime.kt)
+
+    // Koin
+    implementation(libs.koin.androidx.compose)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
 }
