@@ -20,9 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
+import it.unibo.almamensa.ui.AuthScreen
 import it.unibo.almamensa.ui.theme.AlmaMensaTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,6 +36,7 @@ val supabase = createSupabaseClient(
     supabaseKey = BuildConfig.SUPABASE_KEY
 ) {
     install(Postgrest)
+    install(Auth)
 }
 
 class MainActivity : ComponentActivity() {
@@ -42,10 +46,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             AlmaMensaTheme {
                 Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface
                 ) {
-                    TodoList()
+                    var isLoggedIn by remember { mutableStateOf(supabase.auth.currentSessionOrNull() != null) }
+
+                    if (isLoggedIn) {
+                        TodoList(onLogout = { isLoggedIn = false })
+                    } else {
+                        AuthScreen(onAuthSuccess = { isLoggedIn = true })
+                    }
                 }
             }
         }
@@ -56,12 +66,16 @@ class MainActivity : ComponentActivity() {
 data class TodoItem(val id: Int, val name: String)
 
 @Composable
-fun TodoList() {
+fun TodoList(onLogout: () -> Unit) {
     var items by remember { mutableStateOf<List<TodoItem>>(listOf()) }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            items = supabase.from("todos")
-                .select().decodeList<TodoItem>()
+            try {
+                items = supabase.from("todos")
+                    .select().decodeList<TodoItem>()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
