@@ -1,0 +1,108 @@
+package it.unibo.almamensa.ui.composables
+
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import it.unibo.almamensa.ui.AlmaMensaRoute
+import it.unibo.almamensa.ui.screens.auth.AuthViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun AppMenu(
+    currentDestination: NavDestination?,
+    navController: NavHostController,
+    drawerState: DrawerState,
+    scope: CoroutineScope
+) {
+    ModalDrawerSheet(
+        // Navbar width
+        modifier = Modifier.width(280.dp)
+    ) {
+        val authVm = koinViewModel<AuthViewModel>(
+            viewModelStoreOwner = LocalActivity.current as ComponentActivity // Get the AuthState from the activity: it need to be shared between composables
+        )
+        val authState by authVm.state.collectAsStateWithLifecycle()
+
+        Text(
+            "AlmaMensa",
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.titleLarge
+        )
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        NavigationDrawerItem(
+            label = { Text("Home") },
+            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Home>() } == true,
+            icon = { Icon(Icons.Default.Home, contentDescription = null) },
+            onClick = {
+                scope.launch { drawerState.close() }
+                navController.navigate(AlmaMensaRoute.Home) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        )
+
+        if (authState.isLoggedIn) {
+            NavigationDrawerItem(
+                label = { Text("Logout") },
+                selected = false,
+                icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
+                onClick = {
+                    scope.launch {
+                        drawerState.close()
+                        authVm.logout()
+                        navController.navigate(AlmaMensaRoute.Home) {
+                            popUpTo(0)
+                        }
+                    }
+                }
+            )
+        } else {
+            NavigationDrawerItem(
+                label = { Text("Accedi") },
+                selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Auth>() } == true,
+                icon = { Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null) },
+                onClick = {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(AlmaMensaRoute.Auth) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            )
+        }
+    }
+}

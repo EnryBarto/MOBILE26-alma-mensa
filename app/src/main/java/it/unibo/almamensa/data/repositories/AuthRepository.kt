@@ -7,6 +7,7 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 interface AuthRepository {
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String)
+    suspend fun signOut()
     fun getCurrentUserEmail(): String?
 }
 
@@ -23,6 +24,10 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
             this.email = email
             this.password = password
         }
+    }
+
+    override suspend fun signOut() {
+        supabase.auth.signOut()
     }
 
     override fun getCurrentUserEmail(): String? = supabase.auth.currentSessionOrNull()?.user?.email

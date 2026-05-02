@@ -12,7 +12,7 @@ data class AuthState(
     val email: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isSuccess: Boolean = false
+    val isLoggedIn: Boolean = false
 )
 
 class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
@@ -20,6 +20,13 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val _state = MutableStateFlow(AuthState())
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
+    // Check if the user is already logged in
+    init {
+        val currentUser = authRepository.getCurrentUserEmail()
+        if (currentUser != null) {
+            _state.value = _state.value.copy(email = currentUser, isLoggedIn = true)
+        }
+    }
     fun onEmailChange(email: String) {
         _state.value = _state.value.copy(email = email)
     }
@@ -29,7 +36,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 authRepository.signIn(_state.value.email, password)
-                _state.value = _state.value.copy(isSuccess = true)
+                _state.value = _state.value.copy(isLoggedIn = true)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign in failed")
             } finally {
@@ -43,7 +50,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 authRepository.signUp(_state.value.email, password)
-                _state.value = _state.value.copy(isSuccess = true)
+                _state.value = _state.value.copy(isLoggedIn = true)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign up failed")
             } finally {
@@ -52,7 +59,15 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun resetSuccess() {
-        _state.value = _state.value.copy(isSuccess = false)
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                authRepository.signOut()
+                _state.value = AuthState()
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(errorMessage = e.localizedMessage)
+            }
+        }
     }
+
 }

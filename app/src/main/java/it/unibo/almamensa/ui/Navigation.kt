@@ -1,7 +1,10 @@
 package it.unibo.almamensa.ui
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,10 +22,14 @@ sealed interface AlmaMensaRoute {
 }
 
 @Composable
-fun AlmaMensaNavGraph(navController: NavHostController) {
+fun AlmaMensaNavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
-        startDestination = AlmaMensaRoute.Auth
+        startDestination = AlmaMensaRoute.Home,
+        modifier = modifier
     ) {
         composable<AlmaMensaRoute.Home> {
             val homeVm = koinViewModel<HomeViewModel>()
@@ -31,7 +38,9 @@ fun AlmaMensaNavGraph(navController: NavHostController) {
         }
 
         composable<AlmaMensaRoute.Auth> {
-            val authVm = koinViewModel<AuthViewModel>()
+            val authVm = koinViewModel<AuthViewModel>(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity
+            )
             val state by authVm.state.collectAsStateWithLifecycle()
             AuthScreen(
                 state = state,
