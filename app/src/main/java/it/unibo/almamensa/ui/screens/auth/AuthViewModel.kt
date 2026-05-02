@@ -2,6 +2,8 @@ package it.unibo.almamensa.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.exceptions.RestException
 import it.unibo.almamensa.data.repositories.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +14,7 @@ data class AuthState(
     val email: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isLoggedIn: Boolean = false
+    val sessionStatus: SessionStatus = SessionStatus.NotAuthenticated(isSignOut = false)
 )
 
 class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
@@ -22,9 +24,10 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     // Check if the user is already logged in
     init {
-        val currentUser = authRepository.getCurrentUserEmail()
-        if (currentUser != null) {
-            _state.value = _state.value.copy(email = currentUser, isLoggedIn = true)
+        viewModelScope.launch {
+            authRepository.sessionStatus().collect { status ->
+                _state.value = _state.value.copy(sessionStatus = status)
+            }
         }
     }
     fun onEmailChange(email: String) {
@@ -36,9 +39,10 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 authRepository.signIn(_state.value.email, password)
-                _state.value = _state.value.copy(isLoggedIn = true)
+            } catch (e: RestException) {
+                _state.value = _state.value.copy(errorMessage = e.error)
             } catch (e: Exception) {
-                _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign in failed")
+                _state.value = _state.value.copy(errorMessage = "Errore di rete")
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
             }
@@ -50,9 +54,10 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 authRepository.signUp(_state.value.email, password)
-                _state.value = _state.value.copy(isLoggedIn = true)
+            } catch (e: RestException) {
+                _state.value = _state.value.copy(errorMessage = e.error)
             } catch (e: Exception) {
-                _state.value = _state.value.copy(errorMessage = e.localizedMessage ?: "Sign up failed")
+                _state.value = _state.value.copy(errorMessage = "Errore di rete")
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
             }

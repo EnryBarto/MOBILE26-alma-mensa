@@ -27,6 +27,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.AlmaMensaRoute
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -74,7 +75,7 @@ fun AppMenu(
             }
         )
 
-        if (authState.isLoggedIn) {
+        if (authState.sessionStatus is SessionStatus.Authenticated) {
             NavigationDrawerItem(
                 label = { Text("Logout") },
                 selected = false,

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import io.github.jan.supabase.auth.status.SessionStatus
 
 @Composable
 fun AuthScreen(
@@ -38,8 +39,9 @@ fun AuthScreen(
     var password by remember { mutableStateOf("") }
     var isRegistering by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.isLoggedIn) {
-        if (state.isLoggedIn) {
+    // Auto-redirect to home when the user is authenticated
+    LaunchedEffect(state.sessionStatus) {
+        if (state.sessionStatus is SessionStatus.Authenticated) {
             onAuthSuccess()
         }
     }

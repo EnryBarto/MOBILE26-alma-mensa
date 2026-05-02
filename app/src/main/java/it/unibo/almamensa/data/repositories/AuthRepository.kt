@@ -3,12 +3,14 @@ package it.unibo.almamensa.data.repositories
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String)
     suspend fun signOut()
-    fun getCurrentUserEmail(): String?
+    fun sessionStatus(): Flow<SessionStatus>
 }
 
 class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository {
@@ -30,5 +32,5 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
         supabase.auth.signOut()
     }
 
-    override fun getCurrentUserEmail(): String? = supabase.auth.currentSessionOrNull()?.user?.email
+    override fun sessionStatus() = supabase.auth.sessionStatus
 }
