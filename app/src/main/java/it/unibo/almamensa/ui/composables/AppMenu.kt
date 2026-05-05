@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -66,6 +67,22 @@ fun AppMenu(
             onClick = {
                 scope.launch { drawerState.close() }
                 navController.navigate(AlmaMensaRoute.Home) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Mense") },
+            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Canteens>() } == true,
+            icon = { Icon(Icons.Default.Restaurant, contentDescription = null) },
+            onClick = {
+                scope.launch { drawerState.close() }
+                navController.navigate(AlmaMensaRoute.Canteens) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }

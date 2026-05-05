@@ -5,7 +5,10 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
+import it.unibo.almamensa.data.repositories.CanteenRepository
+import it.unibo.almamensa.data.repositories.MensaRepositoryImpl
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
+import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -23,9 +26,10 @@ val appModule = module {
     }
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<CanteenRepository> { MensaRepositoryImpl(get()) }
 
     viewModel { HomeViewModel() }
-
     viewModel { AuthViewModel(get()) }
+    viewModel { CanteenViewModel(get()) }
 
 }

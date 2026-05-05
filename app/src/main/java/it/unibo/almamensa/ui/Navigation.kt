@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
+import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenScreen
+import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
 import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import kotlinx.serialization.Serializable
@@ -19,6 +21,7 @@ import org.koin.androidx.compose.koinViewModel
 sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     @Serializable data object Auth : AlmaMensaRoute
+    @Serializable data object Canteens : AlmaMensaRoute
 }
 
 @Composable
@@ -35,6 +38,11 @@ fun AlmaMensaNavGraph(
             val homeVm = koinViewModel<HomeViewModel>()
             val state by homeVm.state.collectAsStateWithLifecycle()
             HomeScreen(state, navController)
+        }
+
+        composable<AlmaMensaRoute.Canteens> {
+            val canteenVm = koinViewModel<CanteenViewModel>()
+            CanteenScreen(canteenVm)
         }
 
         composable<AlmaMensaRoute.Auth> {
