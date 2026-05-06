@@ -4,11 +4,13 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.postgrest
+import it.unibo.almamensa.data.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun signIn(email: String, password: String)
-    suspend fun signUp(email: String, password: String)
+    suspend fun signUp(email: String, password: String, name: String, surname: String)
     suspend fun signOut()
     fun sessionStatus(): Flow<SessionStatus>
 }
@@ -21,11 +23,23 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
         }
     }
 
-    override suspend fun signUp(email: String, password: String) {
-        supabase.auth.signUpWith(Email) {
+    override suspend fun signUp(email: String, password: String, name: String, surname: String) {
+        val userInfo = supabase.auth.signUpWith(Email) {
             this.email = email
             this.password = password
         }
+        
+        // Retrieve the UUID from the auth registration
+        val userId = userInfo?.id ?: throw Exception("Errore durante la creazione dell'utente")
+
+        // After auth signup, we create the user entry in the user table
+        val user = User(
+            id = userId,
+            name = name,
+            surname = surname
+        )
+        
+        supabase.postgrest["user"].insert(user)
     }
 
     override suspend fun signOut() {

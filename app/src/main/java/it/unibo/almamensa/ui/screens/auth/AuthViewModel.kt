@@ -49,11 +49,11 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun signUp(password: String) {
+    fun signUp(password: String, name: String, surname: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
-                authRepository.signUp(_state.value.email, password)
+                authRepository.signUp(_state.value.email, password, name, surname)
             } catch (e: RestException) {
                 _state.value = _state.value.copy(errorMessage = e.error)
             } catch (e: Exception) {

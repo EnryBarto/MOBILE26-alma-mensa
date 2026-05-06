@@ -5,10 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class User(
-    // the Id of the user is taken from the auth db handled by supabase
-    val id: Long,
+    // the Id of the user is the UUID from Supabase Auth
+    val id: String,
 
     val name: String,
     val surname: String,
+    @SerialName("profile_photo_url")
     val profilePhotoUrl: String? = null
 )
