@@ -5,13 +5,27 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Canteen(
-    val id: Int? = null,
-
-    val name: String,
-    val address: String,
-    val latitude: Double,
-    val longitude: Double,
+    @SerialName("id")
+    val id: Long,
 
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String,
+
+    @SerialName("name")
+    val name: String,
+
+    @SerialName("address")
+    val address: String,
+
+    @SerialName("latitude")
+    val latitude: Double,
+
+    @SerialName("longitude")
+    val longitude: Double,
+
+    @SerialName("description")
+    val description: String? = "",
+
+    @SerialName("phone")
+    val phone: String? = ""
 )
