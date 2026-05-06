@@ -6,10 +6,10 @@ import kotlinx.datetime.Instant
 
 @Serializable
 data class Booking(
-    val id: Long? = null,
+    val id: Long,
 
     @SerialName("created_at")
-    val createdAt: Instant? = null,
+    val createdAt: Instant,
 
     val numPeople: Int,
     @SerialName("booking_date")

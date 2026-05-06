@@ -7,17 +7,17 @@ import it.unibo.almamensa.data.model.Canteen
 
 interface CanteenRepository {
     suspend fun getAllCanteen() : List<Canteen>
-    suspend fun getCanteenById(id: Int): Canteen
+    suspend fun getCanteenById(id: Long): Canteen
     suspend fun insertCanteen(canteen: Canteen) : PostgrestResult
-    suspend fun updateCanteen(id: Int, canteen: Canteen) : PostgrestResult
-    suspend fun deleteCanteen(id: Int) : PostgrestResult
+    suspend fun updateCanteen(id: Long, canteen: Canteen) : PostgrestResult
+    suspend fun deleteCanteen(id: Long) : PostgrestResult
 }
 
 class MensaRepositoryImpl(private val supabase: SupabaseClient) : CanteenRepository {
     override suspend fun getAllCanteen() =
         supabase.from("canteen").select().decodeList<Canteen>()
 
-    override suspend fun getCanteenById(id: Int) =
+    override suspend fun getCanteenById(id: Long) =
         supabase.from("canteen")
             .select {
                 filter {
@@ -29,7 +29,7 @@ class MensaRepositoryImpl(private val supabase: SupabaseClient) : CanteenReposit
     override suspend fun insertCanteen(canteen: Canteen) =
         supabase.from("canteen").insert(canteen)
 
-    override suspend fun updateCanteen(id: Int, canteen: Canteen) =
+    override suspend fun updateCanteen(id: Long, canteen: Canteen) =
         supabase.from("canteen")
             .update(canteen) {
                 filter {
@@ -37,7 +37,7 @@ class MensaRepositoryImpl(private val supabase: SupabaseClient) : CanteenReposit
                 }
             }
 
-    override suspend fun deleteCanteen(id: Int) =
+    override suspend fun deleteCanteen(id: Long) =
         supabase.from("canteen")
             .delete {
                 filter {

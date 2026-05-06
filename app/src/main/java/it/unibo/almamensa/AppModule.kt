@@ -5,9 +5,14 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
+import it.unibo.almamensa.data.repositories.BookingRepository
+import it.unibo.almamensa.data.repositories.BookingRepositoryImpl
 import it.unibo.almamensa.data.repositories.CanteenRepository
 import it.unibo.almamensa.data.repositories.MensaRepositoryImpl
+import it.unibo.almamensa.data.repositories.ReviewRepository
+import it.unibo.almamensa.data.repositories.ReviewRepositoryImpl
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
+import it.unibo.almamensa.ui.screens.canteenDetails.CanteenDetailsViewModel
 import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
@@ -27,9 +32,12 @@ val appModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<CanteenRepository> { MensaRepositoryImpl(get()) }
+    single<ReviewRepository> { ReviewRepositoryImpl(get()) }
+    single<BookingRepository> { BookingRepositoryImpl(get()) }
 
     viewModel { HomeViewModel() }
     viewModel { AuthViewModel(get()) }
     viewModel { CanteenViewModel(get()) }
+    viewModel { (canteenId: Long) -> CanteenDetailsViewModel(canteenId, get()) }
 
 }
