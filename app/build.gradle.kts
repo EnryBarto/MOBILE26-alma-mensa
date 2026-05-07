@@ -92,4 +92,7 @@ dependencies {
     // Icons
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+
+    // Open Street Map
+    implementation(libs.osmdroid.android)
 }
