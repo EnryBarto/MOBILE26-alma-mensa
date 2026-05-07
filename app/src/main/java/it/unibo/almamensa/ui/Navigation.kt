@@ -15,6 +15,8 @@ import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenScreen
 import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
 import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
+import it.unibo.almamensa.ui.screens.profile.ProfileScreen
+import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
@@ -22,6 +24,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     @Serializable data object Auth : AlmaMensaRoute
     @Serializable data object Canteens : AlmaMensaRoute
+    @Serializable data object Profile: AlmaMensaRoute
 }
 
 @Composable
@@ -61,6 +64,12 @@ fun AlmaMensaNavGraph(
                     }
                 }
             )
+        }
+
+        composable<AlmaMensaRoute.Profile> {
+            val profileVm = koinViewModel<ProfileViewModel>()
+            val state by profileVm.state.collectAsStateWithLifecycle()
+            ProfileScreen(state)
         }
     }
 }
