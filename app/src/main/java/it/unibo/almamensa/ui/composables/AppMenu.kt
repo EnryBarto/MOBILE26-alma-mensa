@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.DrawerState
@@ -93,6 +94,20 @@ fun AppMenu(
         )
 
         if (authState.sessionStatus is SessionStatus.Authenticated) {
+            NavigationDrawerItem(
+                label = { Text("Profilo") },
+                selected = false,
+                icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
+                onClick = {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(AlmaMensaRoute.Profile) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            )
+
             NavigationDrawerItem(
                 label = { Text("Logout") },
                 selected = false,

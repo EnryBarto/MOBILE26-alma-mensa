@@ -4,11 +4,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class User(
-    // the Id of the user is taken from the auth db handled by supabase
-    val id: Long,
-
+data class User (
+    val id: String,
+    val email: String,
     val name: String,
     val surname: String,
-    val profilePhotoUrl: String? = null
+    @SerialName("profile_photo_url") val profilePhotoUrl: String?
 )
+
