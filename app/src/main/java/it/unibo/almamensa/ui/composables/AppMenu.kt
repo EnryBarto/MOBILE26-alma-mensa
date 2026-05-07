@@ -101,7 +101,6 @@ fun AppMenu(
                 onClick = {
                     scope.launch {
                         drawerState.close()
-                        authVm.logout()
                         navController.navigate(AlmaMensaRoute.Profile) {
                             launchSingleTop = true
                         }
