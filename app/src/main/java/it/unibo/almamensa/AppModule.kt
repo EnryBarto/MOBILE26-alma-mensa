@@ -15,8 +15,8 @@ import it.unibo.almamensa.data.repositories.UserRepository
 import it.unibo.almamensa.data.repositories.ReviewRepository
 import it.unibo.almamensa.data.repositories.ReviewRepositoryImpl
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
-import it.unibo.almamensa.ui.screens.canteenDetails.CanteenDetailsViewModel
-import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
+import it.unibo.almamensa.ui.screens.canteen.CanteenViewModel
+import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
@@ -43,7 +43,7 @@ val appModule = module {
 
     viewModel { HomeViewModel() }
     viewModel { AuthViewModel(get()) }
-    viewModel { CanteenViewModel(get()) }
+    viewModel { ExploreViewModel(get()) }
     viewModel { ProfileViewModel(get(), get()) }
-    viewModel { (canteenId: Long) -> CanteenDetailsViewModel(canteenId, get()) }
+    viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get()) }
 }

@@ -8,9 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
-
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -18,7 +15,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
-import androidx.core.net.toUri
+import it.unibo.almamensa.utils.openMaps
 
 
 @Composable
@@ -56,11 +53,7 @@ fun CanteenMapView(canteen: Canteen) {
 
                     setOnTouchListener { v, event ->
                         if (gestureDetector.onTouchEvent(event)) {
-                            val geolocIntentUri = "geo:${canteen.latitude},${canteen.longitude}?q=${Uri.encode(canteen.address)}".toUri()
-                            val intent = Intent(Intent.ACTION_VIEW, geolocIntentUri)
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            }
+                            openMaps(context, canteen)
                             v.performClick()
                         }
                         true
@@ -78,7 +71,7 @@ fun CanteenMapView(canteen: Canteen) {
             shape = RoundedCornerShape(4.dp)
         ) {
             Text(
-                "Tocca per vedere la posizione",
+                "Tocca per aprire le mappe",
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.labelSmall
             )

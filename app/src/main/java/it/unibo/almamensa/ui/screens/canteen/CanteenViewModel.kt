@@ -1,4 +1,4 @@
-package it.unibo.almamensa.ui.screens.canteenDetails
+package it.unibo.almamensa.ui.screens.canteen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,19 +9,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class CanteenDetailsState(
+data class CanteenState(
     val canteen: Canteen? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
 
-class CanteenDetailsViewModel(
+class CanteenViewModel(
     private val canteenId: Long,
     private val canteenRepository: CanteenRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(CanteenDetailsState())
-    val state: StateFlow<CanteenDetailsState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(CanteenState())
+    val state: StateFlow<CanteenState> = _state.asStateFlow()
 
     init {
         loadCanteenDetails()

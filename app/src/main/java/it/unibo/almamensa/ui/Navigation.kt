@@ -9,12 +9,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
-import it.unibo.almamensa.ui.screens.canteenDetails.CanteenDetailsScreen
-import it.unibo.almamensa.ui.screens.canteenDetails.CanteenDetailsViewModel
-import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenScreen
-import it.unibo.almamensa.ui.screens.canteenDisplay.CanteenViewModel
+import it.unibo.almamensa.ui.screens.canteen.CanteenScreen
+import it.unibo.almamensa.ui.screens.canteen.CanteenViewModel
+import it.unibo.almamensa.ui.screens.explore.ExploreScreen
+import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
 import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileScreen
@@ -26,13 +27,21 @@ import org.koin.core.parameter.parametersOf
 sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     @Serializable data object Auth : AlmaMensaRoute
-    @Serializable data object Canteens : AlmaMensaRoute
+    @Serializable data object Explore : AlmaMensaRoute
 
     @Serializable data object Profile: AlmaMensaRoute
 
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
 
 }
+
+// Used to know when to show the menu bar icon instead of the back arrow
+val topLevelRoutes = listOf(
+    AlmaMensaRoute.Home::class,
+    AlmaMensaRoute.Explore::class,
+    AlmaMensaRoute.Profile::class,
+    AlmaMensaRoute.Auth::class
+)
 
 @Composable
 fun AlmaMensaNavGraph(
@@ -50,9 +59,9 @@ fun AlmaMensaNavGraph(
             HomeScreen(state, navController)
         }
 
-        composable<AlmaMensaRoute.Canteens> {
-            val canteenVm = koinViewModel<CanteenViewModel>()
-            CanteenScreen(
+        composable<AlmaMensaRoute.Explore> {
+            val canteenVm = koinViewModel<ExploreViewModel>()
+            ExploreScreen(
                 viewModel = canteenVm,
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
@@ -65,8 +74,14 @@ fun AlmaMensaNavGraph(
             // Actually, using the route is cleaner.
             // But I'll follow the standard way of passing the ID through the route.
             val canteenId = backStackEntry.arguments?.getLong("canteenId") ?: 0L
-            val canteenDetailsVm = koinViewModel<CanteenDetailsViewModel> { parametersOf(canteenId) }
-            CanteenDetailsScreen(
+            val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(canteenId) }
+            val authVm = koinViewModel<AuthViewModel>(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity // Get the AuthState from the activity: it need to be shared between composables
+            )
+            val authState by authVm.state.collectAsStateWithLifecycle()
+            val loggedIn = authState.sessionStatus is SessionStatus.Authenticated
+            CanteenScreen(
+                loggedIn = loggedIn,
                 viewModel = canteenDetailsVm,
                 onReview = { /* TODO */ },
                 onBook = { /* TODO */ }

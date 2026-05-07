@@ -2,7 +2,6 @@ package it.unibo.almamensa.data.repositories
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.result.PostgrestResult
 import it.unibo.almamensa.data.model.Booking
 
 interface BookingRepository {
@@ -10,9 +9,9 @@ interface BookingRepository {
     suspend fun getBookingById(id: Long): Booking
     suspend fun getBookingsByUserId(userId: Long): List<Booking>
     suspend fun getBookingsByCanteenId(canteenId: Long): List<Booking>
-    suspend fun insertBooking(booking: Booking): PostgrestResult
-    suspend fun updateBooking(id: Long, booking: Booking): PostgrestResult
-    suspend fun deleteBooking(id: Long): PostgrestResult
+    suspend fun insertBooking(booking: Booking): Booking
+    suspend fun updateBooking(id: Long, booking: Booking): Booking
+    suspend fun deleteBooking(id: Long): Boolean
 }
 
 class BookingRepositoryImpl(private val supabase: SupabaseClient) : BookingRepository {
@@ -46,22 +45,32 @@ class BookingRepositoryImpl(private val supabase: SupabaseClient) : BookingRepos
             }
             .decodeList<Booking>()
 
-    override suspend fun insertBooking(booking: Booking): PostgrestResult =
-        supabase.from("booking").insert(booking)
+    override suspend fun insertBooking(booking: Booking): Booking {
+        return supabase.from("bookings")
+            .insert(booking) {
+                select()
+            }
+            .decodeSingle<Booking>()
+    }
 
-    override suspend fun updateBooking(id: Long, booking: Booking): PostgrestResult =
+    override suspend fun updateBooking(id: Long, booking: Booking): Booking =
         supabase.from("booking")
             .update(booking) {
                 filter {
                     eq("id", id)
                 }
+                select()
             }
+            .decodeSingle<Booking>()
 
-    override suspend fun deleteBooking(id: Long): PostgrestResult =
-        supabase.from("booking")
-            .delete {
-                filter {
-                    eq("id", id)
-                }
+    override suspend fun deleteBooking(id: Long): Boolean {
+        return try {
+            supabase.from("bookings").delete {
+                filter { eq("id", id) }
             }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 }

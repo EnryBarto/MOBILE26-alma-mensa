@@ -14,7 +14,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import it.unibo.almamensa.ui.AlmaMensaRoute
+import it.unibo.almamensa.ui.topLevelRoutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -29,9 +29,11 @@ fun AppBar(
     CenterAlignedTopAppBar(
         title = { Text("AlmaMensa") },
         navigationIcon = {
-            val isHome =
-                currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Home>() } == true
-            if (isHome) {
+            val isTopLevelDestination = currentDestination?.hierarchy?.any { dest ->
+                topLevelRoutes.any { route -> dest.hasRoute(route) }
+            } == true
+
+            if (isTopLevelDestination) {
                 IconButton(onClick = { scope.launch { drawerState.open() } }) {
                     Icon(Icons.Default.Menu, contentDescription = "Menu")
                 }

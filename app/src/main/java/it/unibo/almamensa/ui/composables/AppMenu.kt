@@ -68,22 +68,24 @@ fun AppMenu(
             onClick = {
                 scope.launch { drawerState.close() }
                 navController.navigate(AlmaMensaRoute.Home) {
+                    // Pop up to the starting destination of the graph to avoid building up
+                    // a large stack of destinations on the back stack as users select items
                     popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
+                        saveState = true // Save the state of the popped destination so it can be restored later
                     }
-                    launchSingleTop = true
-                    restoreState = true
+                    launchSingleTop = true // Avoid multiple copies of the same destination when reselecting the same item
+                    restoreState = true // Restore state when reselecting a previously selected item (e.g., scroll position)
                 }
             }
         )
 
         NavigationDrawerItem(
-            label = { Text("Mense") },
-            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Canteens>() } == true,
+            label = { Text("Esplora") },
+            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Explore>() } == true,
             icon = { Icon(Icons.Default.Restaurant, contentDescription = null) },
             onClick = {
                 scope.launch { drawerState.close() }
-                navController.navigate(AlmaMensaRoute.Canteens) {
+                navController.navigate(AlmaMensaRoute.Explore) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
                     }
@@ -96,13 +98,17 @@ fun AppMenu(
         if (authState.sessionStatus is SessionStatus.Authenticated) {
             NavigationDrawerItem(
                 label = { Text("Profilo") },
-                selected = false,
+                selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Profile>() } == true,
                 icon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
                 onClick = {
                     scope.launch {
                         drawerState.close()
                         navController.navigate(AlmaMensaRoute.Profile) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
                             launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 }
@@ -117,7 +123,9 @@ fun AppMenu(
                         drawerState.close()
                         authVm.logout()
                         navController.navigate(AlmaMensaRoute.Home) {
-                            popUpTo(0)
+                            // Clean the navigation stack
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 }

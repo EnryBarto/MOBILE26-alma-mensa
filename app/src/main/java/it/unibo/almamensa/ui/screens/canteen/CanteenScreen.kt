@@ -1,28 +1,53 @@
-package it.unibo.almamensa.ui.screens.canteenDetails
+package it.unibo.almamensa.ui.screens.canteen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.CanteenMapView
-
+import it.unibo.almamensa.ui.composables.InfoItem
+import it.unibo.almamensa.utils.openDialer
+import it.unibo.almamensa.utils.openMaps
 import org.osmdroid.config.Configuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CanteenDetailsScreen(
-    viewModel: CanteenDetailsViewModel,
+fun CanteenScreen(
+    loggedIn: Boolean,
+    viewModel: CanteenViewModel,
     onReview: () -> Unit,
     onBook: () -> Unit
 ) {
@@ -48,10 +73,12 @@ fun CanteenDetailsScreen(
             )
         },
         bottomBar = {
-            CanteenDetailsBottomBar(
-                onReview = onReview,
-                onBook = onBook
-            )
+            if (loggedIn) {
+                CanteenDetailsBottomBar(
+                    onReview = onReview,
+                    onBook = onBook
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
@@ -110,14 +137,16 @@ private fun CanteenDetailsContent(canteen: Canteen) {
         InfoItem(
             icon = Icons.Default.LocationOn,
             label = "Indirizzo",
-            value = canteen.address
+            value = canteen.address,
+            onClick = { openMaps(context, canteen) }
         )
 
         if (!canteen.phone.isNullOrBlank()) {
             InfoItem(
                 icon = Icons.Default.Phone,
                 label = "Telefono",
-                value = canteen.phone
+                value = canteen.phone,
+                onClick = { openDialer(context, canteen.phone) }
             )
         }
 
@@ -129,77 +158,11 @@ private fun CanteenDetailsContent(canteen: Canteen) {
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Latitudine:",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = canteen.latitude.toString(),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Longitudine:",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = canteen.longitude.toString(),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
 
-        HorizontalDivider()
-
-        Text(
-            text = "Posizione",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-            // Map Container
-            CanteenMapView(canteen = canteen)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        // Map Container
+        CanteenMapView(canteen = canteen)
     }
-
-@Composable
-private fun InfoItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Column {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable
