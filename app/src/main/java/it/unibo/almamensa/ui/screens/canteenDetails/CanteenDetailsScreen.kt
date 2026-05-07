@@ -10,9 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.ui.composables.CanteenMapView
+
+import org.osmdroid.config.Configuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +77,13 @@ fun CanteenDetailsScreen(
 
 @Composable
 private fun CanteenDetailsContent(canteen: Canteen) {
+    val context = LocalContext.current
+
+    // Initialize OsmDroid configuration (required)
+    LaunchedEffect(Unit) {
+        Configuration.getInstance().load(context, context.getSharedPreferences("osm_pref", 0))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -145,8 +157,20 @@ private fun CanteenDetailsContent(canteen: Canteen) {
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+
+        HorizontalDivider()
+
+        Text(
+            text = "Posizione",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+            // Map Container
+            CanteenMapView(canteen = canteen)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
-}
 
 @Composable
 private fun InfoItem(
@@ -197,7 +221,7 @@ private fun CanteenDetailsBottomBar(
                 onClick = onReview,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Fai una Recensione")
+                Text("Recensisci")
             }
             Button(
                 onClick = onBook,
