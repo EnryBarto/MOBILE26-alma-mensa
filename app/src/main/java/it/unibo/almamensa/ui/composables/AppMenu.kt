@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
@@ -91,6 +92,24 @@ fun AppMenu(
                     }
                     launchSingleTop = true
                     restoreState = true
+                }
+            }
+        )
+
+        NavigationDrawerItem(
+            label = { Text("Mappa") },
+            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Map>() } == true,
+            icon = { Icon(Icons.Default.Map, contentDescription = null) },
+            onClick = {
+                scope.launch {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AlmaMensaRoute.Map) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             }
         )

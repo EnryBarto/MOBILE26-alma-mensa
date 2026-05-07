@@ -18,6 +18,8 @@ import it.unibo.almamensa.ui.screens.explore.ExploreScreen
 import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
 import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
+import it.unibo.almamensa.ui.screens.map.MapScreen
+import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileScreen
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
 import kotlinx.serialization.Serializable
@@ -28,9 +30,8 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     @Serializable data object Auth : AlmaMensaRoute
     @Serializable data object Explore : AlmaMensaRoute
-
     @Serializable data object Profile: AlmaMensaRoute
-
+    @Serializable data object Map: AlmaMensaRoute
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
 
 }
@@ -40,7 +41,8 @@ val topLevelRoutes = listOf(
     AlmaMensaRoute.Home::class,
     AlmaMensaRoute.Explore::class,
     AlmaMensaRoute.Profile::class,
-    AlmaMensaRoute.Auth::class
+    AlmaMensaRoute.Auth::class,
+    AlmaMensaRoute.Map::class
 )
 
 @Composable
@@ -67,6 +69,11 @@ fun AlmaMensaNavGraph(
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
                 }
             )
+        }
+
+        composable<AlmaMensaRoute.Map> {
+            val mapVm = koinViewModel<MapViewModel>()
+            MapScreen(mapVm)
         }
 
         composable<AlmaMensaRoute.CanteenDetails> { backStackEntry ->

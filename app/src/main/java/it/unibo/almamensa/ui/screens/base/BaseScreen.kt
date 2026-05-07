@@ -15,6 +15,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.unibo.almamensa.ui.AlmaMensaNavGraph
+import it.unibo.almamensa.ui.AlmaMensaRoute
 import it.unibo.almamensa.ui.composables.AppBar
 import it.unibo.almamensa.ui.composables.AppMenu
 import it.unibo.almamensa.ui.topLevelRoutes
@@ -39,8 +40,11 @@ fun BaseScreen() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        // Disabling gesture on MapScreen
         gesturesEnabled = currentDestination?.hierarchy?.any { dest ->
-            topLevelRoutes.any { route -> dest.hasRoute(route) }
+            topLevelRoutes.any { route ->
+                dest.hasRoute(route) && !dest.hasRoute(AlmaMensaRoute.Map::class)
+            }
         } == true, // Enable swipe to open menu bar only in home screen
         drawerContent = { AppMenu(currentDestination, navController, drawerState, scope) }
     ) {

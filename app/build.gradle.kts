@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -47,6 +48,9 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }
 
