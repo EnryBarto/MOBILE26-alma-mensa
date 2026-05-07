@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.unibo.almamensa.utils.Dimensions
 
 @Composable
 fun AuthScreen(
@@ -51,7 +52,7 @@ fun AuthScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .padding(Dimensions.screenHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

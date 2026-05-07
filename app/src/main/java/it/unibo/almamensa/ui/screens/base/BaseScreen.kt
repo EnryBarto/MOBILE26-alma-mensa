@@ -1,6 +1,7 @@
 package it.unibo.almamensa.ui.screens.base
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
@@ -19,6 +20,7 @@ import it.unibo.almamensa.ui.AlmaMensaRoute
 import it.unibo.almamensa.ui.composables.AppBar
 import it.unibo.almamensa.ui.composables.AppMenu
 import it.unibo.almamensa.ui.topLevelRoutes
+import it.unibo.almamensa.utils.Dimensions
 import kotlinx.coroutines.launch
 
 @Composable
@@ -54,7 +56,10 @@ fun BaseScreen() {
             // Invoke the NavGraph to manage the screen that need to be visualized
             AlmaMensaNavGraph(
                 navController = navController,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(top = Dimensions .topAppBarBottomMargin)
             )
         }
     }
