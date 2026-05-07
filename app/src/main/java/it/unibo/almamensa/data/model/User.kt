@@ -11,3 +11,4 @@ data class User (
     val surname: String,
     @SerialName("profile_photo_url") val profilePhotoUrl: String?
 )
+

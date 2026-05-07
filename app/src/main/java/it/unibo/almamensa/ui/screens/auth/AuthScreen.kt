@@ -32,11 +32,13 @@ fun AuthScreen(
     state: AuthState,
     onEmailChange: (String) -> Unit,
     onSignIn: (String) -> Unit,
-    onSignUp: (String) -> Unit,
+    onSignUp: (String, String, String) -> Unit,
     onAuthSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var surname by remember { mutableStateOf("") }
     var isRegistering by remember { mutableStateOf(false) }
 
     // Auto-redirect to home when the user is authenticated
@@ -60,6 +62,28 @@ fun AuthScreen(
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        if (isRegistering) {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nome") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = surname,
+                onValueChange = { surname = it },
+                label = { Text("Cognome") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         OutlinedTextField(
             value = state.email,
@@ -99,13 +123,13 @@ fun AuthScreen(
             Button(
                 onClick = {
                     if (isRegistering) {
-                        onSignUp(password)
+                        onSignUp(password, name, surname)
                     } else {
                         onSignIn(password)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = state.email.isNotBlank() && password.isNotBlank()
+                enabled = state.email.isNotBlank() && password.isNotBlank() && (!isRegistering || (name.isNotBlank() && surname.isNotBlank()))
             ) {
                 Text(
                     if (isRegistering) "Registrati" else "Accedi",

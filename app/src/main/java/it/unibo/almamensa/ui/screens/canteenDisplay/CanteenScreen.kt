@@ -15,7 +15,10 @@ import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
 
 @Composable
-fun CanteenScreen(viewModel: CanteenViewModel) {
+fun CanteenScreen(
+    viewModel: CanteenViewModel,
+    onCanteenClick: (Canteen) -> Unit
+) {
     val state by viewModel.state.collectAsState()
 
     // Show error as snackbar
@@ -51,7 +54,7 @@ fun CanteenScreen(viewModel: CanteenViewModel) {
                 else -> {
                     CanteenList(
                         canteens = state.canteens,
-                        onCanteenClick = { viewModel.selectCanteen(it) }
+                        onCanteenClick = onCanteenClick
                     )
                 }
             }
@@ -68,7 +71,7 @@ private fun CanteenList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(canteens, key = { it.id ?: 0 }) { canteen ->
+        items(canteens, key = { it.id }) { canteen ->
             CanteenCard(
                 canteen = canteen,
                 onClick = { onCanteenClick(canteen) }
@@ -99,6 +102,12 @@ private fun CanteenCard(
                 fontWeight = FontWeight.Bold
             )
 
+            // Description
+            Text(
+                text = canteen.description ?: "",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
             HorizontalDivider()
 
             // Address
@@ -115,24 +124,6 @@ private fun CanteenCard(
                 Text(
                     text = canteen.address,
                     style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // Coordinates
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Place,
-                    contentDescription = "Coordinate",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = "%.5f, %.5f".format(canteen.latitude, canteen.longitude),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
