@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,16 +17,13 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,22 +37,22 @@ import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.CanteenMapView
 import it.unibo.almamensa.ui.composables.InfoItem
+import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.openDialer
 import it.unibo.almamensa.utils.openMaps
 import org.osmdroid.config.Configuration
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanteenScreen(
     loggedIn: Boolean,
     viewModel: CanteenViewModel,
     onReview: () -> Unit,
-    onBook: () -> Unit
+    onBook: () -> Unit,
+    modifier: Modifier = Modifier // Riceve il padding dal BaseScreen/NavHost
 ) {
     val state by viewModel.state.collectAsState()
-
-    // Show error as snackbar
     val snackbarHostState = remember { SnackbarHostState() }
+    // Show error as snackbar
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -62,43 +60,38 @@ fun CanteenScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(
-                        state.canteen?.name ?: "Dettagli Mensa",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            )
-        },
-        bottomBar = {
-            if (loggedIn) {
-                CanteenDetailsBottomBar(
-                    onReview = onReview,
-                    onBook = onBook
-                )
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
+            state.isLoading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                state.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+
+            state.canteen != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = if (loggedIn) 100.dp else 16.dp)
+                ) {
+                    CanteenDetailsContent(canteen = state.canteen!!)
                 }
 
-                state.canteen != null -> {
-                    CanteenDetailsContent(canteen = state.canteen!!)
+                if (loggedIn) {
+                    CanteenBottomBar(
+                        onReview = onReview,
+                        onBook = onBook,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = if (loggedIn) 80.dp else 16.dp)
+        )
     }
 }
 
@@ -114,15 +107,21 @@ private fun CanteenDetailsContent(canteen: Canteen) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(horizontal = Dimensions.screenHorizontalPadding),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        Text(
+            text = canteen.name,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
         // Description
         if (!canteen.description.isNullOrBlank()) {
             Text(
                 text = canteen.description,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.labelMedium
             )
             HorizontalDivider()
         }
@@ -166,18 +165,21 @@ private fun CanteenDetailsContent(canteen: Canteen) {
 }
 
 @Composable
-private fun CanteenDetailsBottomBar(
+private fun CanteenBottomBar(
     onReview: () -> Unit,
-    onBook: () -> Unit
+    onBook: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
         shadowElevation = 8.dp
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .navigationBarsPadding(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(

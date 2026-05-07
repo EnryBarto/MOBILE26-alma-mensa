@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.User
 import it.unibo.almamensa.ui.composables.ProfilePhoto
+import it.unibo.almamensa.utils.Dimensions
 
 @Composable
 fun ProfileScreen(
@@ -23,7 +24,9 @@ fun ProfileScreen(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = Dimensions.screenHorizontalPadding),
         contentAlignment = Alignment.Center
     ) {
         when {
@@ -44,9 +47,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(user: User) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {

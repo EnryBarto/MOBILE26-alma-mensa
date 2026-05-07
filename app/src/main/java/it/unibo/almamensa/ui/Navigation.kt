@@ -28,9 +28,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     @Serializable data object Auth : AlmaMensaRoute
     @Serializable data object Explore : AlmaMensaRoute
-
     @Serializable data object Profile: AlmaMensaRoute
-
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
 
 }
@@ -70,9 +68,6 @@ fun AlmaMensaNavGraph(
         }
 
         composable<AlmaMensaRoute.CanteenDetails> { backStackEntry ->
-            // In a real app we would get the ID from the route, but the user said "it calls a function that sets the id"
-            // Actually, using the route is cleaner.
-            // But I'll follow the standard way of passing the ID through the route.
             val canteenId = backStackEntry.arguments?.getLong("canteenId") ?: 0L
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(canteenId) }
             val authVm = koinViewModel<AuthViewModel>(
