@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.ui.composables.CanteenReviews
 import it.unibo.almamensa.ui.composables.InfoItem
 import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.openDialer
@@ -71,6 +72,7 @@ fun CanteenScreen(
                         .padding(bottom = if (loggedIn) 100.dp else 16.dp)
                 ) {
                     CanteenDetailsContent(canteen = state.canteen!!)
+                    CanteenReviews(reviews = state.reviews)
                 }
 
                 if (loggedIn) {

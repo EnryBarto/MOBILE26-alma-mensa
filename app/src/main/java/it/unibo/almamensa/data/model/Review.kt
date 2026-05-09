@@ -17,5 +17,5 @@ data class Review(
     @SerialName("canteen_id")
     val canteenId: Long,
     @SerialName("user_id")
-    val userId: Long
+    val userId: String
 )
