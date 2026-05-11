@@ -18,11 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import it.unibo.almamensa.data.model.Review
+import it.unibo.almamensa.ui.screens.canteen.ReviewWithName
 import it.unibo.almamensa.utils.Dimensions
 
 @Composable
-fun CanteenReviews(reviews: List<Review>) {
+fun CanteenReviews(reviews: List<ReviewWithName>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,7 +59,7 @@ fun CanteenReviews(reviews: List<Review>) {
 }
 
 @Composable
-fun ReviewItem(review: Review) {
+fun ReviewItem(review: ReviewWithName) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -70,15 +70,26 @@ fun ReviewItem(review: Review) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = review.title,
+                text = "${review.name} ${review.surname}",
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = review.review.title,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
-            RatingBar(score = review.score)
+            RatingBar(score = review.review.score)
         }
 
-        review.description?.let {
+        review.review.description?.let {
             if (it.isNotBlank()) {
                 Text(
                     text = it,
@@ -89,7 +100,7 @@ fun ReviewItem(review: Review) {
         }
 
         Text(
-            text = formatReviewDate(review.createdAt),
+            text = formatReviewDate(review.review.createdAt),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

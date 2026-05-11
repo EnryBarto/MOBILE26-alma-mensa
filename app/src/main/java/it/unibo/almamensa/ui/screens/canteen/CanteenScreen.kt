@@ -46,7 +46,7 @@ fun CanteenScreen(
     viewModel: CanteenViewModel,
     onReview: () -> Unit,
     onBook: () -> Unit,
-    modifier: Modifier = Modifier // Riceve il padding dal BaseScreen/NavHost
+    modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
