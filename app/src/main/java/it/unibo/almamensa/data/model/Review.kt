@@ -1,14 +1,15 @@
 package it.unibo.almamensa.data.model
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Review(
-    val id: Long,
+    val id: Long? = null,
 
     @SerialName("created_at")
-    val createdAt: String,
+    val createdAt: Instant? = null,
 
     val score: Int,
     val description: String? = null,

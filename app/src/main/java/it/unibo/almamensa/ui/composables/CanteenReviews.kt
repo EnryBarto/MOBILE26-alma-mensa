@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.ui.screens.canteen.ReviewWithName
 import it.unibo.almamensa.utils.Dimensions
+import kotlinx.datetime.Instant
 
 @Composable
 fun CanteenReviews(reviews: List<ReviewWithName>) {
@@ -42,10 +43,15 @@ fun CanteenReviews(reviews: List<ReviewWithName>) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                reviews.forEach { review ->
+            // Using a simple Column instead of LazyColumn to avoid nesting scrollable containers
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                reviews.forEachIndexed { index, review ->
                     ReviewItem(review = review)
-                    if (review != reviews.last()) {
+
+                    if (index < reviews.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(top = 12.dp),
                             thickness = 0.5.dp,
@@ -100,7 +106,7 @@ fun ReviewItem(review: ReviewWithName) {
         }
 
         Text(
-            text = formatReviewDate(review.review.createdAt),
+            text = formatReviewDate(review.review.createdAt!!),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -121,10 +127,10 @@ fun RatingBar(score: Int) {
     }
 }
 
-private fun formatReviewDate(dateString: String): String {
+private fun formatReviewDate(dateInstant: Instant): String {
     return try {
-        dateString.split("T").first()
+        dateInstant.toString().split("T")[0]
     } catch (e: Exception) {
-        dateString
+        dateInstant.toString()
     }
 }

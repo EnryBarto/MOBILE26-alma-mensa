@@ -20,6 +20,7 @@ import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
+import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -47,5 +48,6 @@ val appModule = module {
     viewModel { ExploreViewModel(get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get() ) }
+    viewModel { (canteenId: Long) -> ReviewViewModel(canteenId, get(), get()) }
     viewModel { MapViewModel(get()) }
 }

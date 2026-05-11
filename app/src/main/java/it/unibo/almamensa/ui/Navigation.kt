@@ -3,12 +3,14 @@ package it.unibo.almamensa.ui
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
@@ -22,6 +24,8 @@ import it.unibo.almamensa.ui.screens.map.MapScreen
 import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileScreen
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
+import it.unibo.almamensa.ui.screens.review.ReviewScreen
+import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -33,7 +37,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Profile: AlmaMensaRoute
     @Serializable data object Map: AlmaMensaRoute
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
-
+    @Serializable data class AddReview(val canteenId: Long) : AlmaMensaRoute
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -77,18 +81,37 @@ fun AlmaMensaNavGraph(
         }
 
         composable<AlmaMensaRoute.CanteenDetails> { backStackEntry ->
-            val canteenId = backStackEntry.arguments?.getLong("canteenId") ?: 0L
+            val route = backStackEntry.toRoute<AlmaMensaRoute.CanteenDetails>()
+            val canteenId = route.canteenId
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(canteenId) }
             val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity // Get the AuthState from the activity: it need to be shared between composables
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity // Get the AuthState from the activity: it needs to be shared between composables
             )
             val authState by authVm.state.collectAsStateWithLifecycle()
             val loggedIn = authState.sessionStatus is SessionStatus.Authenticated
             CanteenScreen(
                 loggedIn = loggedIn,
                 viewModel = canteenDetailsVm,
-                onReview = { /* TODO */ },
+                onReview = {
+                    navController.navigate(AlmaMensaRoute.AddReview(canteenId))
+                },
                 onBook = { /* TODO */ }
+            )
+        }
+
+        composable<AlmaMensaRoute.AddReview> { backStackEntry ->
+            val route = backStackEntry.toRoute<AlmaMensaRoute.AddReview>()
+            val canteenId = route.canteenId
+            val reviewVm = koinViewModel<ReviewViewModel> { parametersOf(canteenId) }
+            val state by reviewVm.state.collectAsStateWithLifecycle()
+            
+            ReviewScreen(
+                state = state,
+                onTitleChange = reviewVm::onTitleChange,
+                onScoreChange = reviewVm::onScoreChange,
+                onDescriptionChange = reviewVm::onDescriptionChange,
+                onSubmit = reviewVm::submitReview,
+                onBack = { navController.popBackStack() }
             )
         }
 
