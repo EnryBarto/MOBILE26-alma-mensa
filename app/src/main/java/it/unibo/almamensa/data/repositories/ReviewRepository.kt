@@ -2,14 +2,17 @@ package it.unibo.almamensa.data.repositories
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.result.PostgrestResult
 import it.unibo.almamensa.data.model.Review
+import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 
 interface ReviewRepository {
     suspend fun getAllReviews(): List<Review>
     suspend fun getReviewById(id: Long): Review
     suspend fun getReviewsByCanteenId(canteenId: Long): List<Review>
     suspend fun getReviewsByUserId(userId: Long): List<Review>
+    suspend fun getReviewsWithUser(canteenId: Long): List<ReviewWithUserDto>
     suspend fun insertReview(review: Review): PostgrestResult
     suspend fun updateReview(id: Long, review: Review): PostgrestResult
     suspend fun deleteReview(id: Long): PostgrestResult
@@ -45,6 +48,16 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 }
             }
             .decodeList<Review>()
+
+    override suspend fun getReviewsWithUser(canteenId: Long): List<ReviewWithUserDto> {
+        return supabase.from("review")
+            .select(Columns.raw("*, user(id, name, surname)")) {
+                filter {
+                    eq("canteen_id", canteenId)
+                }
+            }
+            .decodeList<ReviewWithUserDto>()
+    }
 
     override suspend fun insertReview(review: Review): PostgrestResult =
         supabase.from("review").insert(review)
