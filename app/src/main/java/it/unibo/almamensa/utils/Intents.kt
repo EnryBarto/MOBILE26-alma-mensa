@@ -21,3 +21,15 @@ fun openMaps(context: Context, canteen: Canteen) {
         context.startActivity(intent)
     }
 }
+
+fun shareCanteenLink(context: Context, canteenId: Long) {
+    val url = "https://almamensa-e4631.web.app/canteen/$canteenId"
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, "Hey! Guarda che bella mensa che ho trovato grazie ad AlmaMensa!: $url")
+    }
+    val chooserIntent = Intent.createChooser(intent, "Condividi via")
+    if (chooserIntent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(chooserIntent)
+    }
+}

@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
@@ -83,7 +84,11 @@ fun AlmaMensaNavGraph(
             MapScreen(mapVm)
         }
 
-        composable<AlmaMensaRoute.CanteenDetails> { backStackEntry ->
+        composable<AlmaMensaRoute.CanteenDetails>(
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://almamensa-e4631.web.app/canteen/{canteenId}" }
+            )
+        ) { backStackEntry ->
             val route = backStackEntry.toRoute<AlmaMensaRoute.CanteenDetails>()
             val canteenId = route.canteenId
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(canteenId) }
@@ -92,13 +97,13 @@ fun AlmaMensaNavGraph(
             )
             val authState by authVm.state.collectAsStateWithLifecycle()
             val loggedIn = authState.sessionStatus is SessionStatus.Authenticated
+
             CanteenScreen(
                 loggedIn = loggedIn,
                 viewModel = canteenDetailsVm,
                 onReview = {
                     navController.navigate(AlmaMensaRoute.AddReview(canteenId))
-                },
-                onBook = { /* TODO */ }
+                }
             )
         }
 

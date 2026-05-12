@@ -42,7 +42,6 @@ fun CanteenScreen(
     loggedIn: Boolean,
     viewModel: CanteenViewModel,
     onReview: () -> Unit,
-    onBook: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -72,13 +71,12 @@ fun CanteenScreen(
                     CanteenDetailsContent(state)
                 }
 
-                if (loggedIn) {
-                    CanteenBottomBar(
-                        onReview = onReview,
-                        onBook = onBook,
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                    )
-                }
+                CanteenBottomBar(
+                    onReview = onReview,
+                    canteenId = state.canteen?.id ?: 0L,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    loggedIn = loggedIn
+                )
             }
         }
 
