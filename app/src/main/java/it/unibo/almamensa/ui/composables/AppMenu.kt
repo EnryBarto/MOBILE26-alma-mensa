@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -168,5 +169,22 @@ fun AppMenu(
                 }
             )
         }
+        NavigationDrawerItem(
+            label = { Text("Impostazioni") },
+            selected = currentDestination?.hierarchy?.any { it.hasRoute<AlmaMensaRoute.Settings>() } == true,
+            icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+            onClick = {
+                scope.launch {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AlmaMensaRoute.Settings) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+        )
     }
 }

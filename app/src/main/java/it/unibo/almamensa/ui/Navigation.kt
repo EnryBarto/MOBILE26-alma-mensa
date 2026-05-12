@@ -3,7 +3,6 @@ package it.unibo.almamensa.ui
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +25,8 @@ import it.unibo.almamensa.ui.screens.profile.ProfileScreen
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewScreen
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
+import it.unibo.almamensa.ui.screens.settings.SettingsScreen
+import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -38,6 +39,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Map: AlmaMensaRoute
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
     @Serializable data class AddReview(val canteenId: Long) : AlmaMensaRoute
+    @Serializable data object Settings: AlmaMensaRoute
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -46,7 +48,8 @@ val topLevelRoutes = listOf(
     AlmaMensaRoute.Explore::class,
     AlmaMensaRoute.Profile::class,
     AlmaMensaRoute.Auth::class,
-    AlmaMensaRoute.Map::class
+    AlmaMensaRoute.Map::class,
+    AlmaMensaRoute.Settings::class
 )
 
 @Composable
@@ -137,6 +140,12 @@ fun AlmaMensaNavGraph(
             val profileVm = koinViewModel<ProfileViewModel>()
             val state by profileVm.state.collectAsStateWithLifecycle()
             ProfileScreen(state)
+        }
+
+        composable<AlmaMensaRoute.Settings> {
+            val settingsVm = koinViewModel<SettingsViewModel>()
+            val state by settingsVm.state.collectAsStateWithLifecycle()
+            SettingsScreen(state, settingsVm.actions)
         }
     }
 }

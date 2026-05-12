@@ -95,4 +95,7 @@ dependencies {
 
     // Open Street Map
     implementation(libs.osmdroid.android)
+
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
 }

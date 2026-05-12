@@ -1,5 +1,7 @@
 package it.unibo.almamensa
 
+import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -13,6 +15,8 @@ import it.unibo.almamensa.data.repositories.MensaRepositoryImpl
 import it.unibo.almamensa.data.repositories.ProfileRepositoryImpl
 import it.unibo.almamensa.data.repositories.ReviewRepository
 import it.unibo.almamensa.data.repositories.ReviewRepositoryImpl
+import it.unibo.almamensa.data.repositories.SettingsRepository
+import it.unibo.almamensa.data.repositories.SettingsRepositoryImpl
 import it.unibo.almamensa.data.repositories.UserRepository
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
 import it.unibo.almamensa.ui.screens.canteen.CanteenViewModel
@@ -21,8 +25,11 @@ import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
+import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+
+val Context.dataStore by preferencesDataStore("theme")
 
 val appModule = module {
 
@@ -37,11 +44,14 @@ val appModule = module {
         }
     }
 
+    single { get<Context>().dataStore }
+
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<CanteenRepository> { MensaRepositoryImpl(get()) }
     single<UserRepository> { ProfileRepositoryImpl(get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
     single<BookingRepository> { BookingRepositoryImpl(get()) }
+    single<SettingsRepository> { SettingsRepositoryImpl(get()) }
 
     viewModel { HomeViewModel() }
     viewModel { AuthViewModel(get()) }
@@ -50,4 +60,5 @@ val appModule = module {
     viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get() ) }
     viewModel { (canteenId: Long) -> ReviewViewModel(canteenId, get(), get()) }
     viewModel { MapViewModel(get()) }
+    viewModel { SettingsViewModel(get()) }
 }
