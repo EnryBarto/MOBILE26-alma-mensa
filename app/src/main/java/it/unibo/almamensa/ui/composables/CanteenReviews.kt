@@ -18,12 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import it.unibo.almamensa.ui.screens.canteen.ReviewWithName
+import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 import it.unibo.almamensa.utils.Dimensions
 import kotlinx.datetime.Instant
 
 @Composable
-fun CanteenReviews(reviews: List<ReviewWithName>) {
+fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,7 +65,7 @@ fun CanteenReviews(reviews: List<ReviewWithName>) {
 }
 
 @Composable
-fun ReviewItem(review: ReviewWithName) {
+fun ReviewItem(review: ReviewWithUserDto) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -76,7 +76,7 @@ fun ReviewItem(review: ReviewWithName) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${review.name} ${review.surname}",
+                text = "${review.user.name} ${review.user.surname}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -87,15 +87,15 @@ fun ReviewItem(review: ReviewWithName) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = review.review.title,
+                text = review.title,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
-            RatingBar(score = review.review.score)
+            RatingBar(score = review.score)
         }
 
-        review.review.description?.let {
+        review.description?.let {
             if (it.isNotBlank()) {
                 Text(
                     text = it,
@@ -106,7 +106,7 @@ fun ReviewItem(review: ReviewWithName) {
         }
 
         Text(
-            text = formatReviewDate(review.review.createdAt!!),
+            text = formatReviewDate(review.createdAt),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
