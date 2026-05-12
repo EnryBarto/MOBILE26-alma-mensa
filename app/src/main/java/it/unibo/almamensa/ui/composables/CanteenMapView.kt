@@ -92,29 +92,47 @@ fun CanteensMapView(canteens: List<Canteen>) {
     ) {
         AndroidView(
             factory = { ctx ->
-                MapView(ctx).apply {
+                mapView.apply {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
-                    controller.setZoom(17.0)
-
-                    for (canteen in canteens) {
-                        val node = GeoPoint(canteen.latitude, canteen.longitude)
-                        controller.setCenter(node)
-
-                        val marker = Marker(this)
-                        marker.position = node
-                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        marker.title = canteen.name + "\n" + canteen.address
-                        overlays.add(marker)
-                    }
+                    controller.setZoom(15.0)
 
                     if (hasLocationPermission) {
                         myLocationOverlay.enableMyLocation()
-                        myLocationOverlay.enableFollowLocation()
-                        overlays.add(myLocationOverlay)
+                        myLocationOverlay.runOnFirstFix {
+                            post {
+                                val userLocation = myLocationOverlay.myLocation
+                                if (userLocation != null) {
+                                    controller.animateTo(userLocation)
+                                    controller.setZoom(16.0)
+                                }
+                            }
+                        }
+                        if (!overlays.contains(myLocationOverlay)) {
+                            overlays.add(myLocationOverlay)
+                        }
                     }
                 }
-            }
+            },
+            update = { view ->
+                view.overlays.removeAll { it is Marker }
+
+                for (canteen in canteens) {
+                    val node = GeoPoint(canteen.latitude, canteen.longitude)
+                    val marker = Marker(view)
+                    marker.position = node
+                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    marker.title = "${canteen.name}\n${canteen.address}"
+                    view.overlays.add(marker)
+                }
+
+                if (!hasLocationPermission && canteens.isNotEmpty() && view.mapCenter.latitude == 0.0 && view.mapCenter.longitude == 0.0) {
+                    val firstCanteen = GeoPoint(canteens[0].latitude, canteens[0].longitude)
+                    view.controller.setCenter(firstCanteen)
+                }
+                view.invalidate()
+            },
+            modifier = Modifier.fillMaxWidth().height(250.dp)
         )
     }
 }
