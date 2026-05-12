@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +32,7 @@ import it.unibo.almamensa.ui.composables.CanteenBottomBar
 import it.unibo.almamensa.ui.composables.CanteenReviews
 import it.unibo.almamensa.ui.composables.InfoItem
 import it.unibo.almamensa.utils.Dimensions
+import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import it.unibo.almamensa.utils.openDialer
 import it.unibo.almamensa.utils.openMaps
 import org.osmdroid.config.Configuration
@@ -65,9 +67,9 @@ fun CanteenScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(bottom = if (loggedIn) 100.dp else 16.dp)
+                        .padding(horizontal = Dimensions.screenHorizontalPadding),
                 ) {
-                    CanteenDetailsContent(canteen = state.canteen!!)
-                    CanteenReviews(reviews = state.reviews)
+                    CanteenDetailsContent(state)
                 }
 
                 if (loggedIn) {
@@ -90,7 +92,8 @@ fun CanteenScreen(
 }
 
 @Composable
-private fun CanteenDetailsContent(canteen: Canteen) {
+private fun CanteenDetailsContent(state: CanteenState) {
+    val canteen = state.canteen!!
     val context = LocalContext.current
 
     // Initialize OsmDroid configuration (required)
@@ -99,28 +102,49 @@ private fun CanteenDetailsContent(canteen: Canteen) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = Dimensions.screenHorizontalPadding),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
+        NameCard(canteen)
+        HorizontalDivider()
+        InfoCard(canteen)
+        HorizontalDivider()
+        CanteenReviews(reviews = state.reviews)
+    }
+}
 
+@Composable
+private fun NameCard(canteen: Canteen) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = verticalItemsSpacing),
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
+    ) {
         Text(
             text = canteen.name,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
 
-        // Description
         if (!canteen.description.isNullOrBlank()) {
             Text(
                 text = canteen.description,
                 style = MaterialTheme.typography.labelMedium
             )
-            HorizontalDivider()
         }
+    }
+}
 
-        // Info section
+@Composable
+private fun InfoCard(canteen: Canteen) {
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = verticalItemsSpacing),
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
+    ) {
         Text(
             text = "Informazioni",
             style = MaterialTheme.typography.titleLarge,

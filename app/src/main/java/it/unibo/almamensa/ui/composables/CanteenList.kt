@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 
 @Composable
 fun CanteenList(
@@ -22,7 +23,7 @@ fun CanteenList(
     onCanteenClick: (Canteen) -> Unit
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
         items(canteens, key = { it.id }) { canteen ->
             CanteenCard(

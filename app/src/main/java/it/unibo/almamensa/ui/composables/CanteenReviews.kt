@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
-import it.unibo.almamensa.utils.Dimensions
+import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import kotlinx.datetime.Instant
 
 @Composable
@@ -27,8 +27,8 @@ fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimensions.screenHorizontalPadding, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(vertical = verticalItemsSpacing),
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
         Text(
             text = "Recensioni",
@@ -45,7 +45,7 @@ fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
         } else {
             // Using a simple Column instead of LazyColumn to avoid nesting scrollable containers
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 reviews.forEachIndexed { index, review ->
@@ -53,8 +53,7 @@ fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
 
                     if (index < reviews.lastIndex) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(top = 12.dp),
-                            thickness = 0.5.dp,
+                            thickness = 0.3.dp,
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
