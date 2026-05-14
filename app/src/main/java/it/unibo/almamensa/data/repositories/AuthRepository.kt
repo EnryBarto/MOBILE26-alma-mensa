@@ -12,6 +12,7 @@ interface AuthRepository {
     suspend fun signIn(email: String, password: String)
     suspend fun signUp(email: String, password: String, name: String, surname: String)
     suspend fun signOut()
+    suspend fun updatePassword(newPsw: String)
     fun sessionStatus(): Flow<SessionStatus>
 }
 
@@ -46,6 +47,16 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
 
     override suspend fun signOut() {
         supabase.auth.signOut()
+    }
+
+    override suspend fun updatePassword(newPsw: String) {
+        try {
+            supabase.auth.updateUser {
+                password = newPsw
+            }
+        } catch (e: Exception) {
+            throw Exception("Errore durante la modifica della password")
+        }
     }
 
     override fun sessionStatus() = supabase.auth.sessionStatus

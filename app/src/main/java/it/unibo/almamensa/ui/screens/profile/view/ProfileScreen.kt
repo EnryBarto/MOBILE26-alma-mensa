@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import it.unibo.almamensa.utils.Dimensions
 fun ProfileScreen(
     onLogout: () -> Unit,
     profileState: ProfileState,
+    onModifyPassword: () -> Unit,
     authState: AuthState,
     modifier: Modifier = Modifier,
     onLogoutSuccess: () -> Unit,
@@ -59,7 +61,8 @@ fun ProfileScreen(
             profileState.user != null -> {
                 ProfileContent(
                     profileState.user,
-                    imageVersion = profileState.imageVersion
+                    imageVersion = profileState.imageVersion,
+                    onModifyPassword = onModifyPassword
                 )
 
                 DoubleButtonBar(
@@ -79,7 +82,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileContent(user: User, imageVersion: Long = 0) {
+private fun ProfileContent(user: User, imageVersion: Long = 0, onModifyPassword: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,5 +114,9 @@ private fun ProfileContent(user: User, imageVersion: Long = 0) {
             text = user.email,
             style = MaterialTheme.typography.labelMedium
         )
+
+        Button(onClick = onModifyPassword) {
+            Text("Modifica Password")
+        }
     }
 }
