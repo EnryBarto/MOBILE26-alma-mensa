@@ -6,9 +6,19 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 import it.unibo.almamensa.data.model.User
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.Serializable
 
+// Associate the image version to the User to know when it needs to be updated in the UI
+data class UserWithVersion(
+    val user: User?,
+    val imageVersion: Long = 0
+)
+
 interface UserRepository {
+    val myProfile: Flow<UserWithVersion>
+
     suspend fun getProfile(userId: String): User?
     suspend fun updateProfile(name: String, surname: String)
     suspend fun uploadProfilePicture(uri: Uri)
@@ -26,6 +36,9 @@ class ProfileRepositoryImpl(
     private val supabase: SupabaseClient,
     private val context: android.content.Context
 ) : UserRepository {
+
+    private val _myProfile = MutableSharedFlow<UserWithVersion>(replay = 1)
+    override val myProfile: Flow<UserWithVersion> = _myProfile
 
     override suspend fun getProfile(userId: String): User? =
         supabase.from("user")
@@ -46,6 +59,7 @@ class ProfileRepositoryImpl(
                     eq("id", userId)
                 }
             }
+        getMyProfile()
     }
 
     override suspend fun uploadProfilePicture(uri: Uri) {
@@ -79,6 +93,7 @@ class ProfileRepositoryImpl(
                     eq("id", userId)
                 }
             }
+        getMyProfile()
     }
 
     override suspend fun deleteProfilePicture() {
@@ -95,10 +110,12 @@ class ProfileRepositoryImpl(
             .update(mapOf("profile_photo_url" to null)) {
                 filter { eq("id", userId) }
             }
+        getMyProfile()
     }
 
     override suspend fun getMyProfile(): User? {
-        val userId = supabase.auth.currentUserOrNull()?.id ?: return null
-        return getProfile(userId)
+        val user = supabase.auth.currentUserOrNull()?.id?.let { getProfile(it) }
+        _myProfile.emit(UserWithVersion(user, System.currentTimeMillis()))
+        return user
     }
 }

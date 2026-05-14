@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import it.unibo.almamensa.data.model.Canteen
@@ -16,12 +14,10 @@ import it.unibo.almamensa.utils.Dimensions
 
 @Composable
 fun ExploreScreen(
-    viewModel: ExploreViewModel,
+    state: ExploreState,
     onCanteenClick: (Canteen) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.state.collectAsState()
-
     Box(
         modifier = modifier
             .fillMaxSize()

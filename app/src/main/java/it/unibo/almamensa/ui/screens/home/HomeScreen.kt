@@ -19,16 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import it.unibo.almamensa.R
 import it.unibo.almamensa.utils.Dimensions
 
 @Composable
 fun HomeScreen(
     state: HomeState,
-    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -41,14 +40,14 @@ fun HomeScreen(
     ) {
         Text(
             text = state.title,
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = state.subtitle,
+            text = "Da universitari per universitari",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -68,7 +67,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = state.description,
+            text = "Benvenuto su AlmaMensa, la piattaforma dedicata agli studenti universitari per scoprire e recensire le mense universitarie. La nostra missione è migliorare l'esperienza culinaria degli studenti, offrendo un accesso facile e veloce alle informazioni sulle mense e permettendo di condividere opinioni e valutazioni. Unisciti a noi per rendere ogni pasto un momento piacevole e senza stress!",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface

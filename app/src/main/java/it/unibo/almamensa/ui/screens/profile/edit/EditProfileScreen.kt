@@ -68,14 +68,11 @@ fun EditProfileScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
-            state.isLoading -> CircularProgressIndicator()
-
-            else -> {
+            state.name.isNotEmpty() || state.surname.isNotEmpty() -> {
                 EditProfileContent(
                     state = state,
                     onNameChange = onNameChange,
                     onSurnameChange = onSurnameChange,
-                    onSaveClick = onSaveClick,
                     onDeleteImageClick = onDeleteImageClick,
                     onPickImageClick = { imagePickerLauncher.launch("image/*") }
                 )
@@ -87,6 +84,10 @@ fun EditProfileScreen(
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
+
+            state.isLoading -> CircularProgressIndicator()
+
+            else -> CircularProgressIndicator()
         }
 
         SnackbarHost(
@@ -101,7 +102,6 @@ private fun EditProfileContent(
     state: EditProfileState,
     onNameChange: (String) -> Unit,
     onSurnameChange: (String) -> Unit,
-    onSaveClick: () -> Unit,
     onPickImageClick: () -> Unit,
     onDeleteImageClick: () -> Unit = {}
 ) {
@@ -116,7 +116,16 @@ private fun EditProfileContent(
     ) {
         Box(contentAlignment = Alignment.Center) {
 
-            ProfilePhoto(profilePhotoUrl = state.profilePhotoUrl)
+            // Use the image versioning system to keep the photo updated
+            val profilePhotoUrl = remember(state.profilePhotoUrl, state.imageVersion) {
+                if (state.profilePhotoUrl != null && state.imageVersion > 0) {
+                    "${state.profilePhotoUrl}?v=${state.imageVersion}"
+                } else {
+                    state.profilePhotoUrl
+                }
+            }
+
+            ProfilePhoto(profilePhotoUrl = profilePhotoUrl)
 
             if (state.profilePhotoUrl != null) {
                 IconButton(

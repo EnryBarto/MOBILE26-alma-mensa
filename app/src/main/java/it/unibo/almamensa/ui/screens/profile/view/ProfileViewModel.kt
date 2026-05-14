@@ -33,10 +33,10 @@ class ProfileViewModel(
         viewModelScope.launch {
             authRepository.sessionStatus().collect { status ->
                 if (status is SessionStatus.Authenticated) {
-                    currentUserId = status.session.user?.id
-                    currentUserId?.let { loadProfile(it) }
+                    userRepository.myProfile.collect { (user, imageVersion) ->
+                        _state.update { it.copy(user = user, imageVersion = imageVersion) }
+                    }
                 } else {
-                    currentUserId = null
                     _state.value = ProfileState()
                 }
             }
@@ -56,7 +56,7 @@ class ProfileViewModel(
         _state.value = _state.value.copy(isLoading = true)
         try {
             val user = userRepository.getProfile(userId)
-            _state.value = _state.value.copy(user = user)
+            _state.update { it.copy(user = user) }
         } catch (e: Exception) {
             _state.value = _state.value.copy(errorMessage = "Errore nel caricamento del profilo")
         } finally {

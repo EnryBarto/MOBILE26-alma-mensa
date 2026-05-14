@@ -14,12 +14,7 @@ data class SettingsState (
     val dynamicColor: Boolean
 )
 
-data class SettingsAction(
-    val setTheme: (Theme) -> Unit,
-    val setDynamicColor: (Boolean) -> Unit
-)
-
-class SettingsViewModel(repository: SettingsRepository) : ViewModel() {
+class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
 
     val state = combine(
         repository.theme,
@@ -31,12 +26,11 @@ class SettingsViewModel(repository: SettingsRepository) : ViewModel() {
             initialValue = SettingsState(Theme.Sistema, false)
         )
 
-    val actions = SettingsAction(
-        setTheme = { theme ->
-            viewModelScope.launch { repository.setTheme(theme)  }
-        },
-        setDynamicColor = { enabled ->
-            viewModelScope.launch { repository.setDynamicColor(enabled) }
-        }
-    )
+    fun setTheme(theme: Theme) {
+        viewModelScope.launch { repository.setTheme(theme) }
+    }
+
+    fun setDynamicColor(enabled: Boolean) {
+        viewModelScope.launch { repository.setDynamicColor(enabled) }
+    }
 }

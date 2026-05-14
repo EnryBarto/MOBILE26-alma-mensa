@@ -51,8 +51,6 @@ fun ProfileScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
-            profileState.isLoading -> CircularProgressIndicator()
-
             profileState.errorMessage != null -> Text(
                 text = profileState.errorMessage,
                 color = MaterialTheme.colorScheme.error
@@ -75,6 +73,8 @@ fun ProfileScreen(
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
+
+            profileState.isLoading -> CircularProgressIndicator()
 
             else -> Text("ERRORE: Nessun profilo trovato")
         }

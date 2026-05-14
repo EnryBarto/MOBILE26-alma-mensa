@@ -4,17 +4,18 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.exceptions.RestException
-import it.unibo.almamensa.data.model.User
 import it.unibo.almamensa.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class EditProfileState(
     val name: String = "",
     val surname: String = "",
     val profilePhotoUrl: String? = null,
+    val imageVersion: Long = 0,
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
     val errorMessage: String? = null
@@ -28,7 +29,18 @@ class EditProfileViewModel(
     val state: StateFlow<EditProfileState> = _state.asStateFlow()
 
     init {
-        loadProfile()
+        viewModelScope.launch {
+            userRepository.myProfile.collect { (user, imageVersion) ->
+                user?.let {
+                    _state.update { s -> s.copy(
+                        name = it.name,
+                        surname = it.surname,
+                        profilePhotoUrl = it.profilePhotoUrl,
+                        imageVersion = imageVersion
+                    )}
+                }
+            }
+        }
     }
 
     private fun loadProfile() {
@@ -36,12 +48,20 @@ class EditProfileViewModel(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 val user = userRepository.getMyProfile()
-                user?.let {
-                    _state.value = _state.value.copy(
-                        name = it.name,
-                        surname = it.surname,
-                        profilePhotoUrl = it.profilePhotoUrl
-                    )
+                user?.let { u ->
+                    _state.update { s ->
+                        s.copy(
+                            name = u.name,
+                            surname = u.surname,
+                            profilePhotoUrl = u.profilePhotoUrl,
+                            // Force image reload only if the photo is changed
+                            imageVersion = if (u.profilePhotoUrl != s.profilePhotoUrl) {
+                                System.currentTimeMillis()
+                            } else {
+                                s.imageVersion
+                            }
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(errorMessage = "Impossibile caricare il profilo")
@@ -83,13 +103,6 @@ class EditProfileViewModel(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 userRepository.uploadProfilePicture(uri)
-                val user: User? = userRepository.getMyProfile()
-                if (user != null) {
-                    _state.value = _state.value.copy(
-                        profilePhotoUrl = user.profilePhotoUrl,
-                        isSaved = true
-                    )
-                }
             } catch (e: RestException) {
                 _state.value = _state.value.copy(errorMessage = e.error)
             } catch (e: Exception) {
@@ -105,7 +118,6 @@ class EditProfileViewModel(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             try {
                 userRepository.deleteProfilePicture()
-                _state.value = _state.value.copy(profilePhotoUrl = null, isSaved = true)
             } catch (e: RestException) {
                 _state.value = _state.value.copy(errorMessage = e.error)
             } catch (e: Exception) {

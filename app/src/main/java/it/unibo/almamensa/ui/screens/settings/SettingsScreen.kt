@@ -22,7 +22,8 @@ import it.unibo.almamensa.utils.Dimensions.controlElementLabelPadding
 @Composable
 fun SettingsScreen(
     settingsState: SettingsState,
-    settingsActions: SettingsAction,
+    onThemeChange: (Theme) -> Unit,
+    onDynamicColorChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -50,7 +51,7 @@ fun SettingsScreen(
                 RadioListItem(
                     label = theme.toString(),
                     selected = (theme == settingsState.theme),
-                    onClick = { settingsActions.setTheme(theme) },
+                    onClick = { onThemeChange(theme) },
                 )
             }
         }
@@ -62,7 +63,7 @@ fun SettingsScreen(
         ){
             Switch(
                 checked = settingsState.dynamicColor,
-                onCheckedChange = { checked -> settingsActions.setDynamicColor(checked) }
+                onCheckedChange = { checked -> onDynamicColorChange(checked) }
             )
 
             Text(

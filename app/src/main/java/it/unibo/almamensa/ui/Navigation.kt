@@ -5,8 +5,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -71,13 +69,15 @@ fun AlmaMensaNavGraph(
         composable<AlmaMensaRoute.Home> {
             val homeVm = koinViewModel<HomeViewModel>()
             val state by homeVm.state.collectAsStateWithLifecycle()
-            HomeScreen(state, navController)
+            HomeScreen(state)
         }
 
         composable<AlmaMensaRoute.Explore> {
             val canteenVm = koinViewModel<ExploreViewModel>()
+            val state by canteenVm.state.collectAsStateWithLifecycle()
+
             ExploreScreen(
-                viewModel = canteenVm,
+                state = state,
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
                 }
@@ -86,7 +86,9 @@ fun AlmaMensaNavGraph(
 
         composable<AlmaMensaRoute.Map> {
             val mapVm = koinViewModel<MapViewModel>()
-            MapScreen(mapVm)
+            val state by mapVm.state.collectAsStateWithLifecycle()
+
+            MapScreen(state)
         }
 
         composable<AlmaMensaRoute.CanteenDetails>(
@@ -108,8 +110,8 @@ fun AlmaMensaNavGraph(
 
         composable<AlmaMensaRoute.AddReview> { backStackEntry ->
             val route = backStackEntry.toRoute<AlmaMensaRoute.AddReview>()
-            val canteenId = route.canteenId
-            val reviewVm = koinViewModel<ReviewViewModel> { parametersOf(canteenId) }
+
+            val reviewVm = koinViewModel<ReviewViewModel> { parametersOf(route.canteenId) }
             val state by reviewVm.state.collectAsStateWithLifecycle()
             
             ReviewScreen(
@@ -156,11 +158,6 @@ fun AlmaMensaNavGraph(
             )
             val authState by authVm.state.collectAsStateWithLifecycle()
 
-            // Reload data everytime the screen is visible
-            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                profileVm.refreshProfile()
-            }
-
             ProfileScreen(
                 profileState = state,
                 onLogout = authVm::logout,
@@ -199,7 +196,11 @@ fun AlmaMensaNavGraph(
         composable<AlmaMensaRoute.Settings> {
             val settingsVm = koinViewModel<SettingsViewModel>()
             val state by settingsVm.state.collectAsStateWithLifecycle()
-            SettingsScreen(state, settingsVm.actions)
+            SettingsScreen(
+                settingsState = state,
+                onThemeChange = settingsVm::setTheme,
+                onDynamicColorChange = settingsVm::setDynamicColor
+            )
         }
     }
 }

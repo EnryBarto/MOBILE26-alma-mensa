@@ -54,7 +54,7 @@ val appModule = module {
     single<BookingRepository> { BookingRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
 
-    viewModel { HomeViewModel() }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { ExploreViewModel(get()) }
     viewModel { ProfileViewModel(get(), get()) }
