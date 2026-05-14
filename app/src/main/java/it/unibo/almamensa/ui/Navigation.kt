@@ -5,13 +5,14 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
 import it.unibo.almamensa.ui.screens.canteen.CanteenScreen
@@ -22,8 +23,10 @@ import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapScreen
 import it.unibo.almamensa.ui.screens.map.MapViewModel
-import it.unibo.almamensa.ui.screens.profile.ProfileScreen
-import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.edit.EditProfileScreen
+import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.view.ProfileScreen
+import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewScreen
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsScreen
@@ -41,6 +44,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
     @Serializable data class AddReview(val canteenId: Long) : AlmaMensaRoute
     @Serializable data object Settings: AlmaMensaRoute
+    @Serializable data object EditProfile : AlmaMensaRoute
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -90,20 +94,14 @@ fun AlmaMensaNavGraph(
             )
         ) { backStackEntry ->
             val route = backStackEntry.toRoute<AlmaMensaRoute.CanteenDetails>()
-            val canteenId = route.canteenId
-            val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(canteenId) }
-            val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity // Get the AuthState from the activity: it needs to be shared between composables
-            )
-            val authState by authVm.state.collectAsStateWithLifecycle()
-            val loggedIn = authState.sessionStatus is SessionStatus.Authenticated
+
+            val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(route.canteenId) }
+            val state by canteenDetailsVm.state.collectAsStateWithLifecycle()
 
             CanteenScreen(
-                loggedIn = loggedIn,
-                viewModel = canteenDetailsVm,
-                onReview = {
-                    navController.navigate(AlmaMensaRoute.AddReview(canteenId))
-                }
+                state = state,
+                onReview = { navController.navigate(AlmaMensaRoute.AddReview(route.canteenId)) },
+                onClearError = canteenDetailsVm::clearError
             )
         }
 
@@ -144,7 +142,46 @@ fun AlmaMensaNavGraph(
         composable<AlmaMensaRoute.Profile> {
             val profileVm = koinViewModel<ProfileViewModel>()
             val state by profileVm.state.collectAsStateWithLifecycle()
-            ProfileScreen(state)
+            val authVm = koinViewModel<AuthViewModel>(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity
+            )
+            val authState by authVm.state.collectAsStateWithLifecycle()
+
+            // Reload data everytime the screen is visible
+            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                profileVm.refreshProfile()
+            }
+
+            ProfileScreen(
+                profileState = state,
+                onLogout = authVm::logout,
+                authState = authState,
+                onLogoutSuccess = {
+                    navController.navigate(AlmaMensaRoute.Home) {
+                        // Clean the navigation stack
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onEditClick = {
+                    navController.navigate(AlmaMensaRoute.EditProfile)
+                }
+            )
+        }
+
+        composable<AlmaMensaRoute.EditProfile> {
+            val editProfileVm = koinViewModel<EditProfileViewModel>()
+            val state by editProfileVm.state.collectAsStateWithLifecycle()
+
+            EditProfileScreen(
+                state = state,
+                onNameChange = editProfileVm::onNameChange,
+                onSurnameChange = editProfileVm::onSurnameChange,
+                onSaveClick = editProfileVm::saveProfile,
+                onAvatarPicked = editProfileVm::uploadProfilePhoto,
+                onDeleteImageClick = editProfileVm::deleteProfilePhoto,
+                onSaveSuccess = { navController.popBackStack() }
+            )
         }
 
         composable<AlmaMensaRoute.Settings> {

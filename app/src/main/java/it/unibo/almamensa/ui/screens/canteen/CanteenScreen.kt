@@ -11,6 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,8 +21,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,29 +28,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
-import it.unibo.almamensa.ui.composables.CanteenBottomBar
 import it.unibo.almamensa.ui.composables.CanteenReviews
+import it.unibo.almamensa.ui.composables.DoubleButtonBar
 import it.unibo.almamensa.ui.composables.InfoItem
+import it.unibo.almamensa.ui.composables.SingleButtonBar
 import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import it.unibo.almamensa.utils.openDialer
 import it.unibo.almamensa.utils.openMaps
+import it.unibo.almamensa.utils.shareCanteenLink
 import org.osmdroid.config.Configuration
 
 @Composable
 fun CanteenScreen(
-    loggedIn: Boolean,
-    viewModel: CanteenViewModel,
+    state: CanteenState,
     onReview: () -> Unit,
+    onClearError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.state.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     // Show error as snackbar
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
-            viewModel.clearError()
+            onClearError()
         }
     }
 
@@ -65,18 +67,32 @@ fun CanteenScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(bottom = if (loggedIn) 100.dp else 16.dp)
+                        .padding(bottom = Dimensions.bottomPaddingButtonBar)
                         .padding(horizontal = Dimensions.screenHorizontalPadding),
                 ) {
                     CanteenDetailsContent(state)
                 }
 
-                CanteenBottomBar(
-                    onReview = onReview,
-                    canteenId = state.canteen?.id ?: 0L,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    loggedIn = loggedIn
-                )
+                val ctx = LocalContext.current
+
+                if (!state.isLoggedIn) {
+                    SingleButtonBar(
+                        text = "Condividi",
+                        icon = Icons.Default.Share,
+                        onClick = { shareCanteenLink(ctx, state.canteen?.id ?: 0L) },
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                } else {
+                    DoubleButtonBar(
+                        textPrimary = "Valuta",
+                        iconPrimary = Icons.Default.RateReview,
+                        onClickPrimary = onReview,
+                        textSecondary = "Condividi",
+                        iconSecondary = Icons.Default.Share,
+                        onClickSecondary = { shareCanteenLink(ctx, state.canteen?.id ?: 0L) },
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
             }
         }
 
@@ -84,7 +100,7 @@ fun CanteenScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = if (loggedIn) 80.dp else 16.dp)
+                .padding(bottom = if (state.isLoggedIn) 80.dp else 16.dp)
         )
     }
 }

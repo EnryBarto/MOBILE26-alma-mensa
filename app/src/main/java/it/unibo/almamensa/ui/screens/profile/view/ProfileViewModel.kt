@@ -1,4 +1,4 @@
-package it.unibo.almamensa.ui.screens.profile
+package it.unibo.almamensa.ui.screens.profile.view
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,12 +9,14 @@ import it.unibo.almamensa.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ProfileState(
     val user: User? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val imageVersion: Long = 0
 )
 
 class ProfileViewModel(
@@ -25,12 +27,27 @@ class ProfileViewModel(
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
+    private var currentUserId: String? = null
+
     init {
         viewModelScope.launch {
             authRepository.sessionStatus().collect { status ->
                 if (status is SessionStatus.Authenticated) {
-                    loadProfile(status.session.user?.id ?: return@collect)
+                    currentUserId = status.session.user?.id
+                    currentUserId?.let { loadProfile(it) }
+                } else {
+                    currentUserId = null
+                    _state.value = ProfileState()
                 }
+            }
+        }
+    }
+
+    fun refreshProfile() {
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                _state.update { it.copy(imageVersion = System.currentTimeMillis()) }
+                loadProfile(userId)
             }
         }
     }
@@ -46,4 +63,5 @@ class ProfileViewModel(
             _state.value = _state.value.copy(isLoading = false)
         }
     }
+
 }

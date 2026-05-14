@@ -16,10 +16,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import it.unibo.almamensa.data.model.User
 
 @Composable
-fun ProfilePhoto (user: User) {
+fun ProfilePhoto(profilePhotoUrl: String?) {
     Box(
         modifier = Modifier
             .size(120.dp)
@@ -27,9 +26,9 @@ fun ProfilePhoto (user: User) {
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
-        if (user.profilePhotoUrl != null) {
+        if (profilePhotoUrl != null) {
             AsyncImage(
-                model = user.profilePhotoUrl,
+                model = profilePhotoUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop

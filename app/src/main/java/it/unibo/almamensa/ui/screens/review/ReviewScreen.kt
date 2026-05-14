@@ -2,9 +2,9 @@ package it.unibo.almamensa.ui.screens.review
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,8 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import it.unibo.almamensa.ui.composables.SingleButtonBar
 import it.unibo.almamensa.utils.Dimensions
+import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 
 @Composable
 fun ReviewScreen(
@@ -44,87 +46,92 @@ fun ReviewScreen(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(Dimensions.screenHorizontalPadding)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "Lascia una recensione",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Dimensions.screenHorizontalPadding)
+                .padding(bottom = Dimensions.bottomPaddingButtonBar),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
+        ) {
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = state.title,
-            onValueChange = onTitleChange,
-            label = { Text("Titolo") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            enabled = !state.isLoading
-        )
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Valutazione: ${state.score}/5",
-                style = MaterialTheme.typography.bodyLarge
+                text = "Lascia una recensione",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                repeat(5) { index ->
-                    val starIndex = index + 1
-                    Icon(
-                        imageVector = if (starIndex <= state.score) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clickable(enabled = !state.isLoading) {
-                                onScoreChange(starIndex)
-                            }
-                    )
+
+            OutlinedTextField(
+                value = state.title,
+                onValueChange = onTitleChange,
+                label = { Text("Titolo") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = !state.isLoading
+            )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Valutazione: ${state.score}/5",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    repeat(5) { index ->
+                        val starIndex = index + 1
+                        Icon(
+                            imageVector = if (starIndex <= state.score) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable(enabled = !state.isLoading) {
+                                    onScoreChange(starIndex)
+                                }
+                        )
+                    }
                 }
             }
-        }
 
-        OutlinedTextField(
-            value = state.description,
-            onValueChange = onDescriptionChange,
-            label = { Text("Descrizione (opzionale)") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            enabled = !state.isLoading
-        )
-
-        if (state.errorMessage != null) {
-            Text(
-                text = state.errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.fillMaxWidth()
+            OutlinedTextField(
+                value = state.description,
+                onValueChange = onDescriptionChange,
+                label = { Text("Descrizione (opzionale)") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                enabled = !state.isLoading
             )
+
+            if (state.errorMessage != null) {
+                Text(
+                    text = state.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (state.isLoading) {
-            CircularProgressIndicator()
-        } else {
-            Button(
+        if (!state.isLoading) {
+            SingleButtonBar(
+                text = "Invia recensione",
+                icon = Icons.Default.Star,
                 onClick = onSubmit,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.align(Alignment.BottomCenter),
                 enabled = state.title.isNotBlank()
-            ) {
-                Text("Invia recensione")
-            }
+            )
         }
     }
 }

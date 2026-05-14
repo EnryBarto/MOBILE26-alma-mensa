@@ -7,4 +7,5 @@ object Dimensions {
     val topAppBarBottomMargin = 8.dp
     val controlElementLabelPadding = 16.dp
     val verticalItemsSpacing = 16.dp
+    val bottomPaddingButtonBar = 100.dp
 }

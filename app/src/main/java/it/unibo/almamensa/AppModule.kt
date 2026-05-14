@@ -23,7 +23,8 @@ import it.unibo.almamensa.ui.screens.canteen.CanteenViewModel
 import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapViewModel
-import it.unibo.almamensa.ui.screens.profile.ProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModel
@@ -48,7 +49,7 @@ val appModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<CanteenRepository> { MensaRepositoryImpl(get()) }
-    single<UserRepository> { ProfileRepositoryImpl(get()) }
+    single<UserRepository> { ProfileRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
     single<BookingRepository> { BookingRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
@@ -57,8 +58,9 @@ val appModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { ExploreViewModel(get()) }
     viewModel { ProfileViewModel(get(), get()) }
-    viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get() ) }
+    viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get() ) }
     viewModel { (canteenId: Long) -> ReviewViewModel(canteenId, get(), get()) }
     viewModel { MapViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
+    viewModel { EditProfileViewModel(get()) }
 }
