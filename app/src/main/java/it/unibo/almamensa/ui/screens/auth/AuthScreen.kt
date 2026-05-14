@@ -31,10 +31,13 @@ import it.unibo.almamensa.utils.Dimensions
 @Composable
 fun AuthScreen(
     state: AuthState,
+    isModifyingPassword: Boolean = false,
     onEmailChange: (String) -> Unit,
     onSignIn: (String) -> Unit,
     onSignUp: (String, String, String) -> Unit,
+    onUpdatePassword: (String) -> Unit,
     onAuthSuccess: () -> Unit,
+    onUpdateSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var password by remember { mutableStateOf("") }
@@ -42,10 +45,17 @@ fun AuthScreen(
     var surname by remember { mutableStateOf("") }
     var isRegistering by remember { mutableStateOf(false) }
 
-    // Auto-redirect to home when the user is authenticated
+    // Auto-redirect to home when the user is authenticated (only if not modifying password)
     LaunchedEffect(state.sessionStatus) {
-        if (state.sessionStatus is SessionStatus.Authenticated) {
+        if (!isModifyingPassword && state.sessionStatus is SessionStatus.Authenticated) {
             onAuthSuccess()
+        }
+    }
+
+    // Call onUpdateSuccess when the password update is successful
+    LaunchedEffect(state.isUpdateSuccess) {
+        if (state.isUpdateSuccess) {
+            onUpdateSuccess()
         }
     }
 
@@ -57,29 +67,46 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = if (isRegistering) "Crea Account" else "Bentornato",
+            text = when {
+                isModifyingPassword -> "Modifica Password"
+                isRegistering -> "Crea Account"
+                else -> "Bentornato"
+            },
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (isRegistering) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nome") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+        if (!isModifyingPassword) {
+            if (isRegistering) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nome") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = surname,
+                    onValueChange = { surname = it },
+                    label = { Text("Cognome") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             OutlinedTextField(
-                value = surname,
-                onValueChange = { surname = it },
-                label = { Text("Cognome") },
+                value = state.email,
+                onValueChange = onEmailChange,
+                label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true
             )
 
@@ -87,20 +114,9 @@ fun AuthScreen(
         }
 
         OutlinedTextField(
-            value = state.email,
-            onValueChange = onEmailChange,
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(if (isModifyingPassword) "Nuova Password" else "Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -123,29 +139,35 @@ fun AuthScreen(
         } else {
             Button(
                 onClick = {
-                    if (isRegistering) {
-                        onSignUp(password, name, surname)
-                    } else {
-                        onSignIn(password)
+                    when {
+                        isModifyingPassword -> onUpdatePassword(password)
+                        isRegistering -> onSignUp(password, name, surname)
+                        else -> onSignIn(password)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = state.email.isNotBlank() && password.isNotBlank() && (!isRegistering || (name.isNotBlank() && surname.isNotBlank()))
+                enabled = password.isNotBlank() && (isModifyingPassword || (state.email.isNotBlank() && (!isRegistering || (name.isNotBlank() && surname.isNotBlank()))))
             ) {
                 Text(
-                    if (isRegistering) "Registrati" else "Accedi",
+                    text = when {
+                        isModifyingPassword -> "Aggiorna Password"
+                        isRegistering -> "Registrati"
+                        else -> "Accedi"
+                    },
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (!isModifyingPassword) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { isRegistering = !isRegistering }) {
-                Text(
-                    if (isRegistering) "Hai già un account? Accedi"
-                    else "Non hai un account? Registrati",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                TextButton(onClick = { isRegistering = !isRegistering }) {
+                    Text(
+                        if (isRegistering) "Hai già un account? Accedi"
+                        else "Non hai un account? Registrati",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

@@ -158,7 +158,7 @@ fun AppMenu(
                 onClick = {
                     scope.launch {
                         drawerState.close()
-                        navController.navigate(AlmaMensaRoute.Auth) {
+                        navController.navigate(AlmaMensaRoute.Auth()) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }

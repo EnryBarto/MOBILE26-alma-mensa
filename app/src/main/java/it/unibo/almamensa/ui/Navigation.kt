@@ -34,7 +34,8 @@ import org.koin.core.parameter.parametersOf
 
 sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
-    @Serializable data object Auth : AlmaMensaRoute
+    // Had to become a data class so that i could pass parameters to the composable
+    @Serializable data class Auth(val isModifyingPassword: Boolean = false) : AlmaMensaRoute
     @Serializable data object Explore : AlmaMensaRoute
     @Serializable data object Profile: AlmaMensaRoute
     @Serializable data object Map: AlmaMensaRoute
@@ -123,20 +124,27 @@ fun AlmaMensaNavGraph(
             )
         }
 
-        composable<AlmaMensaRoute.Auth> {
+        composable<AlmaMensaRoute.Auth> { backStackEntry ->
+            val route = backStackEntry.toRoute<AlmaMensaRoute.Auth>()
             val authVm = koinViewModel<AuthViewModel>(
                 viewModelStoreOwner = LocalActivity.current as ComponentActivity
             )
             val state by authVm.state.collectAsStateWithLifecycle()
             AuthScreen(
                 state = state,
+                isModifyingPassword = route.isModifyingPassword,
                 onEmailChange = authVm::onEmailChange,
                 onSignIn = authVm::signIn,
                 onSignUp = authVm::signUp,
+                onUpdatePassword = authVm::updatePassword,
                 onAuthSuccess = {
                     navController.navigate(AlmaMensaRoute.Home) {
-                        popUpTo(AlmaMensaRoute.Auth) { inclusive = true }
+                        popUpTo(AlmaMensaRoute.Auth()) { inclusive = true }
                     }
+                },
+                onUpdateSuccess = {
+                    authVm.resetUpdateSuccess()
+                    navController.popBackStack()
                 }
             )
         }
@@ -144,7 +152,12 @@ fun AlmaMensaNavGraph(
         composable<AlmaMensaRoute.Profile> {
             val profileVm = koinViewModel<ProfileViewModel>()
             val state by profileVm.state.collectAsStateWithLifecycle()
-            ProfileScreen(state)
+            ProfileScreen(
+                state = state,
+                onModifyPassword = {
+                    navController.navigate(AlmaMensaRoute.Auth(isModifyingPassword = true))
+                }
+            )
         }
 
         composable<AlmaMensaRoute.Settings> {

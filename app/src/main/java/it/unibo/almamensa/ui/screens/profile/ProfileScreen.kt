@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import it.unibo.almamensa.utils.Dimensions
 @Composable
 fun ProfileScreen(
     state: ProfileState,
+    onModifyPassword: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -37,7 +39,7 @@ fun ProfileScreen(
                 color = MaterialTheme.colorScheme.error
             )
 
-            state.user != null -> ProfileContent(state.user)
+            state.user != null -> ProfileContent(state.user, onModifyPassword)
 
             else -> Text("ERRORE: Nessun profilo trovato")
         }
@@ -45,7 +47,7 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileContent(user: User) {
+private fun ProfileContent(user: User, onModifyPassword: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,5 +67,11 @@ private fun ProfileContent(user: User) {
             text = user.email,
             style = MaterialTheme.typography.labelMedium
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(onClick = onModifyPassword) {
+            Text("Modifica Password")
+        }
     }
 }

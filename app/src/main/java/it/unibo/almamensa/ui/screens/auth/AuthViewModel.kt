@@ -14,7 +14,8 @@ data class AuthState(
     val email: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val sessionStatus: SessionStatus = SessionStatus.NotAuthenticated(isSignOut = false)
+    val sessionStatus: SessionStatus = SessionStatus.NotAuthenticated(isSignOut = false),
+    val isUpdateSuccess: Boolean = false
 )
 
 class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
@@ -73,6 +74,24 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
                 _state.value = _state.value.copy(errorMessage = e.localizedMessage)
             }
         }
+    }
+
+    fun updatePassword(newPassword: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null, isUpdateSuccess = false)
+            try {
+                authRepository.updatePassword(newPassword)
+                _state.value = _state.value.copy(isUpdateSuccess = true)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(errorMessage = e.message ?: "Errore durante l'aggiornamento della password")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun resetUpdateSuccess() {
+        _state.value = _state.value.copy(isUpdateSuccess = false)
     }
 
 }
