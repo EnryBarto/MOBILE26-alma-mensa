@@ -46,7 +46,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Intent filter for Auth Deep Links and Canteen Details android:autoVerify="true"-->
+
+            <!-- Intent filter for Deep Links to open shared Canteens -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                    android:host="almamensa-e4631.web.app"
+                    android:pathPrefix="/canteen" />
+            </intent-filter>
+
+            <!-- Intent filter for Auth Deep Links -->
             <intent-filter >
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
