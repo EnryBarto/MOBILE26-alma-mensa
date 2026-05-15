@@ -1,11 +1,9 @@
-package it.unibo.almamensa.ui.screens.auth
+package it.unibo.almamensa.ui.screens.profile.changepassword
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -13,7 +11,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,26 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import io.github.jan.supabase.auth.status.SessionStatus
+import it.unibo.almamensa.ui.screens.auth.AuthState
 import it.unibo.almamensa.utils.Dimensions
 
 @Composable
-fun AuthScreen(
+fun UpdatePasswordScreen(
     state: AuthState,
-    onEmailChange: (String) -> Unit,
-    onSignIn: (String) -> Unit,
-    onSignUp: (String, String, String) -> Unit,
-    onAuthSuccess: () -> Unit,
+    onUpdatePassword: (String) -> Unit,
+    onUpdateSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var password by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var surname by remember { mutableStateOf("") }
-    var isRegistering by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.sessionStatus) {
-        if (state.sessionStatus is SessionStatus.Authenticated) onAuthSuccess()
+    LaunchedEffect(state.isUpdateSuccess) {
+        if (state.isUpdateSuccess) onUpdateSuccess()
     }
 
     Column(
@@ -58,42 +49,15 @@ fun AuthScreen(
         )
     ) {
         Text(
-            text = if (isRegistering) "Crea Account" else "Bentornato",
+            text = "Modifica Password",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
-        )
-
-        if (isRegistering) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nome") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = surname,
-                onValueChange = { surname = it },
-                label = { Text("Cognome") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-        }
-
-        OutlinedTextField(
-            value = state.email,
-            onValueChange = onEmailChange,
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Nuova Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -101,7 +65,6 @@ fun AuthScreen(
         )
 
         if (state.errorMessage != null) {
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = state.errorMessage,
                 color = MaterialTheme.colorScheme.error,
@@ -113,23 +76,11 @@ fun AuthScreen(
             CircularProgressIndicator()
         } else {
             Button(
-                onClick = {
-                    if (isRegistering) onSignUp(password, name, surname)
-                    else onSignIn(password)
-                },
+                onClick = { onUpdatePassword(password) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = password.isNotBlank() && state.email.isNotBlank() &&
-                        (!isRegistering || (name.isNotBlank() && surname.isNotBlank()))
+                enabled = password.isNotBlank()
             ) {
-                Text(if (isRegistering) "Registrati" else "Accedi")
-            }
-
-            TextButton(onClick = { isRegistering = !isRegistering }) {
-                Text(
-                    if (isRegistering) "Hai già un account? Accedi"
-                    else "Non hai un account? Registrati",
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Text("Aggiorna Password")
             }
         }
     }

@@ -3,31 +3,29 @@ package it.unibo.almamensa.ui.screens.profile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.data.model.User
 import it.unibo.almamensa.ui.composables.DoubleButtonBar
 import it.unibo.almamensa.ui.composables.ProfilePhoto
 import it.unibo.almamensa.ui.screens.auth.AuthState
 import it.unibo.almamensa.utils.Dimensions
+import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 
 @Composable
 fun ProfileScreen(
@@ -90,7 +88,7 @@ private fun ProfileContent(user: User, imageVersion: Long = 0, onModifyPassword:
             .padding(horizontal = Dimensions.screenHorizontalPadding)
             .padding(bottom = Dimensions.bottomPaddingButtonBar),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
 
         val profilePhotoUrl = remember(user.profilePhotoUrl, imageVersion) {
@@ -103,20 +101,27 @@ private fun ProfileContent(user: User, imageVersion: Long = 0, onModifyPassword:
 
         ProfilePhoto(profilePhotoUrl)
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Column (
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "${user.name} ${user.surname}",
+                style = MaterialTheme.typography.headlineMedium
+            )
 
-        Text(
-            text = "${user.name} ${user.surname}",
-            style = MaterialTheme.typography.headlineMedium
-        )
+            Text(
+                text = user.email,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
 
-        Text(
-            text = user.email,
-            style = MaterialTheme.typography.labelMedium
-        )
-
-        Button(onClick = onModifyPassword) {
-            Text("Modifica Password")
+        TextButton(onClick = onModifyPassword) {
+            Text(
+                text = "Modifica Password",
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

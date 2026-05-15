@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -115,6 +116,12 @@ fun AppMenu(
             }
         )
 
+        HorizontalDivider(
+            modifier = Modifier.padding(ButtonDefaults.ButtonWithIconContentPadding),
+            thickness = 0.75.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
         if (authState.sessionStatus is SessionStatus.Authenticated) {
             NavigationDrawerItem(
                 label = { Text("Profilo") },
@@ -158,7 +165,7 @@ fun AppMenu(
                 onClick = {
                     scope.launch {
                         drawerState.close()
-                        navController.navigate(AlmaMensaRoute.Auth()) {
+                        navController.navigate(AlmaMensaRoute.Auth) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }

@@ -21,6 +21,7 @@ import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapScreen
 import it.unibo.almamensa.ui.screens.map.MapViewModel
+import it.unibo.almamensa.ui.screens.profile.changepassword.UpdatePasswordScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
 import it.unibo.almamensa.ui.screens.profile.view.ProfileScreen
@@ -36,7 +37,7 @@ import org.koin.core.parameter.parametersOf
 sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
     // Had to become a data class so that i could pass parameters to the composable
-    @Serializable data class Auth(val isModifyingPassword: Boolean = false) : AlmaMensaRoute
+    @Serializable data object Auth: AlmaMensaRoute
     @Serializable data object Explore : AlmaMensaRoute
     @Serializable data object Profile: AlmaMensaRoute
     @Serializable data object Map: AlmaMensaRoute
@@ -44,6 +45,8 @@ sealed interface AlmaMensaRoute {
     @Serializable data class AddReview(val canteenId: Long) : AlmaMensaRoute
     @Serializable data object Settings: AlmaMensaRoute
     @Serializable data object EditProfile : AlmaMensaRoute
+    @Serializable data object UpdatePassword : AlmaMensaRoute
+
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -132,19 +135,13 @@ fun AlmaMensaNavGraph(
             val state by authVm.state.collectAsStateWithLifecycle()
             AuthScreen(
                 state = state,
-                isModifyingPassword = route.isModifyingPassword,
                 onEmailChange = authVm::onEmailChange,
                 onSignIn = authVm::signIn,
                 onSignUp = authVm::signUp,
-                onUpdatePassword = authVm::updatePassword,
                 onAuthSuccess = {
                     navController.navigate(AlmaMensaRoute.Home) {
-                        popUpTo(AlmaMensaRoute.Auth()) { inclusive = true }
+                        popUpTo(AlmaMensaRoute.Auth) { inclusive = true }
                     }
-                },
-                onUpdateSuccess = {
-                    authVm.resetUpdateSuccess()
-                    navController.popBackStack()
                 }
             )
         }
@@ -173,7 +170,7 @@ fun AlmaMensaNavGraph(
                     navController.navigate(AlmaMensaRoute.EditProfile)
                 },
                 onModifyPassword = {
-                    navController.navigate(AlmaMensaRoute.Auth(isModifyingPassword = true))
+                    navController.navigate(AlmaMensaRoute.UpdatePassword)
                 }
             )
         }
@@ -200,6 +197,21 @@ fun AlmaMensaNavGraph(
                 settingsState = state,
                 onThemeChange = settingsVm::setTheme,
                 onDynamicColorChange = settingsVm::setDynamicColor
+            )
+        }
+
+        composable<AlmaMensaRoute.UpdatePassword> {
+            val authVm = koinViewModel<AuthViewModel>(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity
+            )
+            val state by authVm.state.collectAsStateWithLifecycle()
+            UpdatePasswordScreen(
+                state = state,
+                onUpdatePassword = authVm::updatePassword,
+                onUpdateSuccess = {
+                    authVm.resetUpdateSuccess()
+                    navController.popBackStack()
+                }
             )
         }
     }
