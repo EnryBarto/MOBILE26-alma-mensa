@@ -138,6 +138,7 @@ fun AlmaMensaNavGraph(
                 onEmailChange = authVm::onEmailChange,
                 onSignIn = authVm::signIn,
                 onSignUp = authVm::signUp,
+                onGitHubSignIn = authVm::signInWithGitHub,
                 onAuthSuccess = {
                     navController.navigate(AlmaMensaRoute.Home) {
                         popUpTo(AlmaMensaRoute.Auth) { inclusive = true }

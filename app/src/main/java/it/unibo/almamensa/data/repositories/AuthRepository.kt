@@ -1,7 +1,9 @@
 package it.unibo.almamensa.data.repositories
 
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.Github
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.postgrest
@@ -13,6 +15,7 @@ interface AuthRepository {
     suspend fun signUp(email: String, password: String, name: String, surname: String)
     suspend fun signOut()
     suspend fun updatePassword(newPsw: String)
+    suspend fun signInWithGitHub()
     fun sessionStatus(): Flow<SessionStatus>
 }
 
@@ -56,6 +59,14 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
             }
         } catch (e: Exception) {
             throw Exception("Errore durante la modifica della password")
+        }
+    }
+
+    override suspend fun signInWithGitHub() {
+        try {
+            supabase.auth.signInWith(Github, "almamensa://auth-callback")
+        } catch (e: Exception) {
+            throw Exception("Errore durante il login con GitHub")
         }
     }
 

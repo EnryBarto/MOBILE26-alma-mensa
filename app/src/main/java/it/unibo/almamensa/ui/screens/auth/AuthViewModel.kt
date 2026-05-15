@@ -90,6 +90,19 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
+    fun signInWithGitHub() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            try {
+                authRepository.signInWithGitHub()
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(errorMessage = e.message ?: "Errore durante il login con GitHub")
+            } finally {
+                _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
     fun resetUpdateSuccess() {
         _state.value = _state.value.copy(isUpdateSuccess = false)
     }

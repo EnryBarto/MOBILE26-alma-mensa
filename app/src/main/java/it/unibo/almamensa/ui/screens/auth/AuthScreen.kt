@@ -2,6 +2,7 @@ package it.unibo.almamensa.ui.screens.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +38,7 @@ fun AuthScreen(
     onEmailChange: (String) -> Unit,
     onSignIn: (String) -> Unit,
     onSignUp: (String, String, String) -> Unit,
+    onGitHubSignIn: () -> Unit,
     onAuthSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -124,11 +128,38 @@ fun AuthScreen(
                 Text(if (isRegistering) "Registrati" else "Accedi")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f))
+                Text(
+                    text = "oppure",
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = onGitHubSignIn,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Accedi con GitHub")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             TextButton(onClick = { isRegistering = !isRegistering }) {
                 Text(
                     if (isRegistering) "Hai già un account? Accedi"
                     else "Non hai un account? Registrati",
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

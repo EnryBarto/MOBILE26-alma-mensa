@@ -3,6 +3,7 @@ package it.unibo.almamensa
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.FlowType
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
@@ -40,7 +41,12 @@ val appModule = module {
             supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
             install(Postgrest)
-            install(Auth)
+            install(Auth) {
+                flowType = FlowType.PKCE
+
+                scheme = "almamensa"
+                host = "auth-callback"
+            }
             install(Storage)
         }
     }
