@@ -1,5 +1,6 @@
 package it.unibo.almamensa.ui.composables
 
+import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -10,11 +11,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import it.unibo.almamensa.ui.topLevelRoutes
+import it.unibo.almamensa.utils.Dimensions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -26,6 +29,8 @@ fun AppBar(
     scope: CoroutineScope,
     drawerState: DrawerState
 ) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     CenterAlignedTopAppBar(
         title = { Text("AlmaMensa") },
         navigationIcon = {
@@ -45,6 +50,7 @@ fun AppBar(
                     )
                 }
             }
-        }
+        },
+        expandedHeight = if (isLandscape) Dimensions.topAppBarLandscapeHeight else Dimensions.topAppBarPortraitHeight
     )
 }
