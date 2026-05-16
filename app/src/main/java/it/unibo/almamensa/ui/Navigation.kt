@@ -91,7 +91,12 @@ fun AlmaMensaNavGraph(
             val mapVm = koinViewModel<MapViewModel>()
             val state by mapVm.state.collectAsStateWithLifecycle()
 
-            MapScreen(state)
+            MapScreen(
+                state = state,
+                onCanteenClick = { canteen ->
+                    navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
+                }
+            )
         }
 
         composable<AlmaMensaRoute.CanteenDetails>(

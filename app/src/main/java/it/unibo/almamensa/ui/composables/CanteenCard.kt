@@ -44,10 +44,12 @@ fun CanteenCard(
             )
 
             // Description
-            Text(
-                text = canteen.description ?: "",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            if (!canteen.description.isNullOrBlank()) {
+                Text(
+                    text = canteen.description,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
             HorizontalDivider()
 

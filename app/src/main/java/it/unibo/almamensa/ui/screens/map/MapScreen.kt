@@ -1,21 +1,36 @@
 package it.unibo.almamensa.ui.screens.map
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.CanteensMapView
+import it.unibo.almamensa.ui.composables.SingleButtonBar
 
 @Composable
 fun MapScreen(
     state: MapState,
+    onCanteenClick: (Canteen) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
+    Column(
+        modifier = modifier.fillMaxSize()
     ) {
-        CanteensMapView(canteens = state.canteens)
+        CanteensMapView(
+            canteens = state.canteens,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            onCanteenClick = onCanteenClick
+        )
+        SingleButtonBar(
+            text = "Più vicine a me",
+            icon = Icons.Default.NearMe,
+            onClick = { }
+        )
     }
 }

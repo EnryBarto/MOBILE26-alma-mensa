@@ -2,12 +2,14 @@ package it.unibo.almamensa.ui.composables
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,15 +28,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import it.unibo.almamensa.R
 import it.unibo.almamensa.data.model.Canteen
-import it.unibo.almamensa.utils.Dimensions
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -43,7 +49,11 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 @Composable
-fun CanteensMapView(canteens: List<Canteen>) {
+fun CanteensMapView(
+    canteens: List<Canteen>,
+    modifier: Modifier = Modifier,
+    onCanteenClick: (Canteen) -> Unit = {}
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -89,12 +99,11 @@ fun CanteensMapView(canteens: List<Canteen>) {
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(Dimensions.mapHeight)
-            .clip(RoundedCornerShape(12.dp))
+        modifier = modifier.clip(RoundedCornerShape(12.dp))
     ) {
-            AndroidView(
+        val currentPrimaryColor = MaterialTheme.colorScheme.primary.toArgb()
+
+        AndroidView(
                 factory = { ctx ->
                     mapView.apply {
                         setTileSource(TileSourceFactory.MAPNIK)
@@ -126,7 +135,19 @@ fun CanteensMapView(canteens: List<Canteen>) {
                         val marker = Marker(view)
                         marker.position = node
                         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        marker.title = "${canteen.name}\n${canteen.address}"
+                        marker.title = canteen.name
+                        marker.snippet = canteen.address
+
+                        marker.icon = createMarkerDrawable(view.context, currentPrimaryColor)
+
+                        marker.setOnMarkerClickListener { m, _ ->
+                            if (m.isInfoWindowShown) {
+                                onCanteenClick(canteen)
+                            } else {
+                                m.showInfoWindow()
+                            }
+                            true
+                        }
                         view.overlays.add(marker)
                     }
 
@@ -136,9 +157,7 @@ fun CanteensMapView(canteens: List<Canteen>) {
                     }
                     view.invalidate()
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimensions.mapHeight)
+                modifier = Modifier.fillMaxSize()
             )
 
         if (hasLocationPermission) {
@@ -166,4 +185,16 @@ fun CanteensMapView(canteens: List<Canteen>) {
             }
         }
     }
+}
+
+private fun createMarkerDrawable(context: android.content.Context, color: Int): BitmapDrawable {
+    val original = ContextCompat.getDrawable(context, R.drawable.ic_location_pin)?.mutate()
+    DrawableCompat.setTint(original!!, color)
+    val width = (original.intrinsicWidth * 1.75).toInt()
+    val height = (original.intrinsicHeight * 1.75).toInt()
+    val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    original.setBounds(0, 0, width, height)
+    original.draw(canvas)
+    return bitmap.toDrawable(context.resources)
 }
