@@ -15,7 +15,9 @@ import it.unibo.almamensa.ui.composables.SingleButtonBar
 fun MapScreen(
     state: MapState,
     onCanteenClick: (Canteen) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenNearMeClick: () -> Unit,
+    isDarkTheme: Boolean = false
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -25,12 +27,13 @@ fun MapScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onCanteenClick = onCanteenClick
+            onCanteenClick = onCanteenClick,
+            isDarkTheme = isDarkTheme
         )
         SingleButtonBar(
             text = "Più vicine a me",
             icon = Icons.Default.NearMe,
-            onClick = { }
+            onClick = onOpenNearMeClick
         )
     }
 }

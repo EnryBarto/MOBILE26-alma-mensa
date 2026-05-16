@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,7 +25,8 @@ import it.unibo.almamensa.data.model.Canteen
 @Composable
 fun CanteenCard(
     canteen: Canteen,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    distanceInfo: String? = null
 ) {
     Card(
         onClick = onClick,
@@ -68,6 +70,25 @@ fun CanteenCard(
                     text = canteen.address,
                     style = MaterialTheme.typography.bodyMedium
                 )
+            }
+
+            if (distanceInfo != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.DirectionsWalk,
+                        contentDescription = "Distanza",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = distanceInfo,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
         }
     }

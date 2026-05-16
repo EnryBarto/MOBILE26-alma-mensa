@@ -24,7 +24,9 @@ import it.unibo.almamensa.utils.Dimensions
 import kotlinx.coroutines.launch
 
 @Composable
-fun BaseScreen() {
+fun BaseScreen(
+    isDarkTheme: Boolean = false
+) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -59,7 +61,8 @@ fun BaseScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(top = Dimensions .topAppBarBottomMargin)
+                    .padding(top = Dimensions .topAppBarBottomMargin),
+                isDarkTheme = isDarkTheme
             )
         }
     }

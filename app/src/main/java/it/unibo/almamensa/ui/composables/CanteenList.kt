@@ -2,6 +2,7 @@ package it.unibo.almamensa.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,10 @@ fun CanteenList(
     onCanteenClick: (Canteen) -> Unit
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing),
+        contentPadding = PaddingValues(
+            bottom = 8.dp // Used to don't hide the shadow
+        )
     ) {
         items(canteens, key = { it.id }) { canteen ->
             CanteenCard(

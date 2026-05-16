@@ -21,6 +21,8 @@ import it.unibo.almamensa.ui.screens.home.HomeScreen
 import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapScreen
 import it.unibo.almamensa.ui.screens.map.MapViewModel
+import it.unibo.almamensa.ui.screens.nearme.NearMeScreen
+import it.unibo.almamensa.ui.screens.nearme.NearMeViewModel
 import it.unibo.almamensa.ui.screens.profile.changepassword.UpdatePasswordScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
@@ -47,6 +49,8 @@ sealed interface AlmaMensaRoute {
     @Serializable data object EditProfile : AlmaMensaRoute
     @Serializable data object UpdatePassword : AlmaMensaRoute
 
+    @Serializable data object NearMe : AlmaMensaRoute
+
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -62,7 +66,8 @@ val topLevelRoutes = listOf(
 @Composable
 fun AlmaMensaNavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean = false
 ) {
     NavHost(
         navController = navController,
@@ -95,7 +100,11 @@ fun AlmaMensaNavGraph(
                 state = state,
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
-                }
+                },
+                onOpenNearMeClick = {
+                    navController.navigate(AlmaMensaRoute.NearMe)
+                },
+                isDarkTheme = isDarkTheme
             )
         }
 
@@ -218,6 +227,22 @@ fun AlmaMensaNavGraph(
                     authVm.resetUpdateSuccess()
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable<AlmaMensaRoute.NearMe> {
+            val nearMeVm = koinViewModel<NearMeViewModel>()
+            val state by nearMeVm.state.collectAsStateWithLifecycle()
+
+            NearMeScreen(
+                state = state,
+                onLoad = nearMeVm::loadNearbyCanteens,
+                onCanteenClick = { canteen ->
+                    navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
+                },
+                onDismissLocationAlert = nearMeVm::dismissLocationDisabledAlert,
+                onDismissPermissionAlert = nearMeVm::dismissPermissionDeniedAlert,
+                onMaxDistanceChange = nearMeVm::setMaxDistance
             )
         }
     }

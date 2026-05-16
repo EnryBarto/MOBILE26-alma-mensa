@@ -27,6 +27,7 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${properties.getProperty("SUPABASE_KEY")}\"")
+        buildConfigField("String", "ORS_API_KEY", "\"${properties.getProperty("ORS_API_KEY")}\"")
     }
 
     buildTypes {
@@ -76,6 +77,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.cio)
 
     // Supabase
     implementation(libs.postgrest.kt)
@@ -99,4 +101,7 @@ dependencies {
 
     // Datastore
     implementation(libs.androidx.datastore.preferences)
+
+    // Posizione
+    implementation(libs.play.services.location)
 }

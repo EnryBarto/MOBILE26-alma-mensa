@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -33,7 +34,8 @@ fun SingleButtonBar (
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
-        shadowElevation = 8.dp
+        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -76,7 +78,8 @@ fun DoubleButtonBar (
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
-        shadowElevation = 8.dp
+        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Row(
             modifier = Modifier

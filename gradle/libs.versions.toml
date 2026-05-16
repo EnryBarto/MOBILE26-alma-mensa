@@ -15,6 +15,7 @@ composeBom = "2024.09.00"
 material = "1.12.0"
 navigationCompose = "2.9.7"
 osmdroidAndroid = "6.1.20"
+playServicesLocation = "21.3.0"
 supabaseVersion = "3.1.1"
 material3 = "1.4.0"
 
@@ -40,12 +41,14 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorVersion" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorVersion" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabaseVersion" }
 realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt", version.ref = "supabaseVersion" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabaseVersion" }

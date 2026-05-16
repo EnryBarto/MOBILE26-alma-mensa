@@ -32,15 +32,17 @@ class MainActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<SettingsViewModel>()
             val themeState by themeViewModel.state.collectAsStateWithLifecycle()
 
+            val isDark = when (themeState.theme) {
+                Theme.Chiaro -> false
+                Theme.Scuro -> true
+                Theme.Sistema -> isSystemInDarkTheme()
+            }
+
             AlmaMensaTheme (
-                darkTheme = when (themeState.theme) {
-                    Theme.Chiaro -> false
-                    Theme.Scuro -> true
-                    Theme.Sistema -> isSystemInDarkTheme()
-                },
+                darkTheme = isDark,
                 dynamicColor = themeState.dynamicColor
             ){
-                BaseScreen()
+                BaseScreen(isDarkTheme = isDark)
             }
         }
     }

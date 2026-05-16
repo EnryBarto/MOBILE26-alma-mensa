@@ -2,6 +2,7 @@ package it.unibo.almamensa.utils
 
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import androidx.core.net.toUri
 import it.unibo.almamensa.data.model.Canteen
 
@@ -32,4 +33,8 @@ fun shareCanteenLink(context: Context, canteenId: Long) {
     if (chooserIntent.resolveActivity(context.packageManager) != null) {
         context.startActivity(chooserIntent)
     }
+}
+
+fun openLocationSettings(context: Context) {
+    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
 }

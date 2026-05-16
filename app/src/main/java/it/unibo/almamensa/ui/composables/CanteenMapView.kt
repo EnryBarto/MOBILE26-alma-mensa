@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import it.unibo.almamensa.R
 import it.unibo.almamensa.data.model.Canteen
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -52,7 +53,8 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 fun CanteensMapView(
     canteens: List<Canteen>,
     modifier: Modifier = Modifier,
-    onCanteenClick: (Canteen) -> Unit = {}
+    onCanteenClick: (Canteen) -> Unit = {},
+    isDarkTheme: Boolean = false
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -106,7 +108,15 @@ fun CanteensMapView(
         AndroidView(
                 factory = { ctx ->
                     mapView.apply {
-                        setTileSource(TileSourceFactory.MAPNIK)
+                        val tileSource = if (isDarkTheme) {
+                            XYTileSource(
+                                "CartoDB Dark", 0, 19, 256, ".png",
+                                arrayOf("https://a.basemaps.cartocdn.com/dark_all/")
+                            )
+                        } else {
+                            TileSourceFactory.MAPNIK
+                        }
+                        setTileSource(tileSource)
                         setMultiTouchControls(true)
                         controller.setZoom(15.0)
 
