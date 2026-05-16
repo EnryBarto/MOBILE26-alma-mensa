@@ -88,7 +88,8 @@ fun AlmaMensaNavGraph(
                 state = state,
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
-                }
+                },
+                onSearchQueryChange = canteenVm::onSearchQueryChange
             )
         }
 
@@ -141,8 +142,7 @@ fun AlmaMensaNavGraph(
             )
         }
 
-        composable<AlmaMensaRoute.Auth> { backStackEntry ->
-            val route = backStackEntry.toRoute<AlmaMensaRoute.Auth>()
+        composable<AlmaMensaRoute.Auth> {
             val authVm = koinViewModel<AuthViewModel>(
                 viewModelStoreOwner = LocalActivity.current as ComponentActivity
             )
