@@ -34,6 +34,7 @@ import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.nearme.NearMeViewModel
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewViewModel
 import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
@@ -86,5 +87,6 @@ val appModule = module {
     viewModel { MapViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
     viewModel { EditProfileViewModel(get()) }
+    viewModel { PersonalReviewViewModel(get(), get()) }
     viewModel { NearMeViewModel(get(), get(), get()) }
 }

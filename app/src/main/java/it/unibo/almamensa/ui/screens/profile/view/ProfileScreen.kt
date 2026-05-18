@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Feed
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,14 +30,13 @@ import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 
 @Composable
 fun ProfileScreen(
-    onLogout: () -> Unit,
+    onShowReviewClick: () -> Unit,
     profileState: ProfileState,
     onModifyPassword: () -> Unit,
     authState: AuthState,
     modifier: Modifier = Modifier,
     onLogoutSuccess: () -> Unit,
     onEditClick: () -> Unit,
-    onShowReviews: () -> Unit
 ) {
     // Auto-redirect to home when the user is authenticated
     LaunchedEffect(authState.sessionStatus) {
@@ -66,9 +66,9 @@ fun ProfileScreen(
                     textPrimary = "Modifica",
                     iconPrimary = Icons.Default.Edit,
                     onClickPrimary = onEditClick,
-                    textSecondary = "Logout",
-                    iconSecondary = Icons.AutoMirrored.Filled.Logout,
-                    onClickSecondary = onLogout,
+                    textSecondary = "Recensioni",
+                    iconSecondary = Icons.AutoMirrored.Filled.Feed,
+                    onClickSecondary = onShowReviewClick,
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }

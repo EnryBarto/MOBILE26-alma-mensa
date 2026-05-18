@@ -16,6 +16,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PersonalReviewScreen(
+    state: PersonalReviewState,
     viewModel: PersonalReviewViewModel = koinViewModel(),
     onNavigateBack: () -> Unit,
     onEditReview: (Long) -> Unit
@@ -35,9 +36,7 @@ fun PersonalReviewScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                UserReviews(
-                    reviews = state.reviews,
-                )
+                UserReviews(reviews = state.reviews)
             }
         }
     }

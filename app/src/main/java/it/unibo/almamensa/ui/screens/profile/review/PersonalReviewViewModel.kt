@@ -1,5 +1,6 @@
 package it.unibo.almamensa.ui.screens.profile.review
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.SupabaseClient
@@ -38,9 +39,7 @@ class PersonalReviewViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
-                // Recuperiamo le recensioni dell'utente loggato con JOIN sulle mense
                 val reviewsDto = repository.getReviewsByUserWithCanteen(userId= userId)
-
                 _state.value = _state.value.copy(reviews = reviewsDto, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, errorMessage = e.message)

@@ -53,7 +53,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
 
     override suspend fun getReviewsByUserWithCanteen(userId: String): List<ReviewWithCanteenDto> {
         return supabase.from("review")
-            .select(Columns.raw("*, canteen(name)")) {
+            .select(Columns.raw("*,canteen(name)")) {
                 filter {
                     eq("user_id", userId)
                 }
@@ -63,7 +63,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
 
     override suspend fun getReviewsWithUser(canteenId: Long): List<ReviewWithUserDto> {
         return supabase.from("review")
-            .select(Columns.raw("*, user(id, name, surname)")) {
+            .select(Columns.raw("*,user(id,name,surname)")) {
                 filter {
                     eq("canteen_id", canteenId)
                 }

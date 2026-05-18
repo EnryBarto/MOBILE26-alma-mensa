@@ -175,7 +175,9 @@ fun AlmaMensaNavGraph(
 
             ProfileScreen(
                 profileState = state,
-                onLogout = authVm::logout,
+                onShowReviewClick = {
+                    navController.navigate(AlmaMensaRoute.ShowReviews)
+                },
                 authState = authState,
                 onLogoutSuccess = {
                     navController.navigate(AlmaMensaRoute.Home) {
@@ -189,9 +191,6 @@ fun AlmaMensaNavGraph(
                 },
                 onModifyPassword = {
                     navController.navigate(AlmaMensaRoute.UpdatePassword)
-                },
-                onShowReviews = {
-                    navController.navigate(AlmaMensaRoute.ShowReviews)
                 }
             )
         }
@@ -257,6 +256,7 @@ fun AlmaMensaNavGraph(
             val state by personalReviewVm.state.collectAsStateWithLifecycle()
 
             PersonalReviewScreen(
+                state= state,
                 onNavigateBack = { navController.popBackStack() },
                 onEditReview = { reviewId ->
                     // TODO: create the route for the edit review screen

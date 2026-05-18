@@ -12,4 +12,5 @@ object Dimensions {
     val mapHeight = 400.dp
     val topAppBarPortraitHeight = TopAppBarDefaults.TopAppBarExpandedHeight
     val topAppBarLandscapeHeight = 45.dp
+    val horizontalPaddingUserReviews = 20.dp
 }

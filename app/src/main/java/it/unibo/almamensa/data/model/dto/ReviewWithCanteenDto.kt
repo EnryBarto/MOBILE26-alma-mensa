@@ -17,7 +17,7 @@ data class ReviewWithCanteenDto(
     val canteenId: Long,
     @SerialName("user_id")
     val userId: String,
-    val canteens: CanteenNameDto // Nome della tabella su Supabase
+    val canteen: CanteenNameDto // Rinomato da canteens a canteen per matchare il nome tabella
 )
 
 @Serializable

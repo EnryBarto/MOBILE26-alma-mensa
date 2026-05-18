@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.dto.ReviewWithCanteenDto
+import it.unibo.almamensa.utils.Dimensions.horizontalPaddingUserReviews
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import kotlinx.datetime.Instant
 
@@ -22,7 +23,7 @@ fun UserReviews(reviews: List<ReviewWithCanteenDto>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = verticalItemsSpacing),
+            .padding(vertical = verticalItemsSpacing, horizontal = horizontalPaddingUserReviews),
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
         Text(
@@ -70,7 +71,7 @@ fun ReviewItem(review: ReviewWithCanteenDto) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = review.canteens.name,
+                text = review.canteen.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
