@@ -1,5 +1,6 @@
 package it.unibo.almamensa.ui.composables
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,7 @@ import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import kotlinx.datetime.Instant
 
 @Composable
-fun UserReviews(reviews: List<ReviewWithCanteenDto>) {
+fun UserReviews(reviews: List<ReviewWithCanteenDto>, onReviewClick: (Long) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,7 +46,7 @@ fun UserReviews(reviews: List<ReviewWithCanteenDto>) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 reviews.forEachIndexed { index, review ->
-                    ReviewItem(review = review)
+                    ReviewItem(review = review, onReviewClick = onReviewClick)
 
                     if (index < reviews.lastIndex) {
                         HorizontalDivider(
@@ -60,7 +61,7 @@ fun UserReviews(reviews: List<ReviewWithCanteenDto>) {
 }
 
 @Composable
-fun ReviewItem(review: ReviewWithCanteenDto) {
+fun ReviewItem(review: ReviewWithCanteenDto, onReviewClick: (Long) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -77,7 +78,9 @@ fun ReviewItem(review: ReviewWithCanteenDto) {
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {onReviewClick(review.id!!)},
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

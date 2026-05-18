@@ -40,20 +40,17 @@ import org.koin.core.parameter.parametersOf
 
 sealed interface AlmaMensaRoute {
     @Serializable data object Home : AlmaMensaRoute
-    // Had to become a data class so that i could pass parameters to the composable
     @Serializable data object Auth: AlmaMensaRoute
     @Serializable data object Explore : AlmaMensaRoute
     @Serializable data object Profile: AlmaMensaRoute
     @Serializable data object Map: AlmaMensaRoute
     @Serializable data class CanteenDetails(val canteenId: Long) : AlmaMensaRoute
-    @Serializable data class AddReview(val canteenId: Long) : AlmaMensaRoute
+    @Serializable data class WriteReview(val canteenId: Long? = null, val reviewId: Long? = null) : AlmaMensaRoute
     @Serializable data object Settings: AlmaMensaRoute
     @Serializable data object EditProfile : AlmaMensaRoute
     @Serializable data object UpdatePassword : AlmaMensaRoute
     @Serializable data object ShowReviews: AlmaMensaRoute
-
     @Serializable data object NearMe : AlmaMensaRoute
-
 }
 
 // Used to know when to show the menu bar icon instead of the back arrow
@@ -124,15 +121,15 @@ fun AlmaMensaNavGraph(
 
             CanteenScreen(
                 state = state,
-                onReview = { navController.navigate(AlmaMensaRoute.AddReview(route.canteenId)) },
+                onReview = { navController.navigate(AlmaMensaRoute.WriteReview(canteenId = route.canteenId)) },
                 onClearError = canteenDetailsVm::clearError
             )
         }
 
-        composable<AlmaMensaRoute.AddReview> { backStackEntry ->
-            val route = backStackEntry.toRoute<AlmaMensaRoute.AddReview>()
+        composable<AlmaMensaRoute.WriteReview> { backStackEntry ->
+            val route = backStackEntry.toRoute<AlmaMensaRoute.WriteReview>()
 
-            val reviewVm = koinViewModel<ReviewViewModel> { parametersOf(route.canteenId) }
+            val reviewVm = koinViewModel<ReviewViewModel> { parametersOf(route.canteenId, route.reviewId) }
             val state by reviewVm.state.collectAsStateWithLifecycle()
             
             ReviewScreen(
@@ -181,7 +178,6 @@ fun AlmaMensaNavGraph(
                 authState = authState,
                 onLogoutSuccess = {
                     navController.navigate(AlmaMensaRoute.Home) {
-                        // Clean the navigation stack
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -256,11 +252,14 @@ fun AlmaMensaNavGraph(
             val state by personalReviewVm.state.collectAsStateWithLifecycle()
 
             PersonalReviewScreen(
-                state= state,
+                state = state,
+                onRefresh = personalReviewVm::loadPersonalReviews, // Pass the refresh function
                 onNavigateBack = { navController.popBackStack() },
+                onReviewClick = { reviewId ->
+                    navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
+                },
                 onEditReview = { reviewId ->
-                    // TODO: create the route for the edit review screen
-                    navController.navigate("edit_review/$reviewId")
+                    navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
                 }
             )
         }

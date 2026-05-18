@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,7 +62,7 @@ fun ReviewScreen(
         ) {
 
             Text(
-                text = "Lascia una recensione",
+                text = if (state.isEditing) "Modifica recensione" else "Lascia una recensione",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -126,8 +127,8 @@ fun ReviewScreen(
 
         if (!state.isLoading) {
             SingleButtonBar(
-                text = "Invia recensione",
-                icon = Icons.Default.Star,
+                text = if (state.isEditing) "Salva modifiche" else "Invia recensione",
+                icon = if (state.isEditing) Icons.Default.Edit else Icons.Default.Star,
                 onClick = onSubmit,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 enabled = state.title.isNotBlank()
