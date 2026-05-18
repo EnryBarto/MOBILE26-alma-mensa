@@ -26,6 +26,8 @@ import it.unibo.almamensa.ui.screens.nearme.NearMeViewModel
 import it.unibo.almamensa.ui.screens.profile.changepassword.UpdatePasswordScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
+import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewScreen
+import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewViewModel
 import it.unibo.almamensa.ui.screens.profile.view.ProfileScreen
 import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewScreen
@@ -48,6 +50,7 @@ sealed interface AlmaMensaRoute {
     @Serializable data object Settings: AlmaMensaRoute
     @Serializable data object EditProfile : AlmaMensaRoute
     @Serializable data object UpdatePassword : AlmaMensaRoute
+    @Serializable data object ShowReviews: AlmaMensaRoute
 
     @Serializable data object NearMe : AlmaMensaRoute
 
@@ -186,6 +189,9 @@ fun AlmaMensaNavGraph(
                 },
                 onModifyPassword = {
                     navController.navigate(AlmaMensaRoute.UpdatePassword)
+                },
+                onShowReviews = {
+                    navController.navigate(AlmaMensaRoute.ShowReviews)
                 }
             )
         }
@@ -243,6 +249,19 @@ fun AlmaMensaNavGraph(
                 onDismissLocationAlert = nearMeVm::dismissLocationDisabledAlert,
                 onDismissPermissionAlert = nearMeVm::dismissPermissionDeniedAlert,
                 onMaxDistanceChange = nearMeVm::setMaxDistance
+            )
+        }
+
+        composable<AlmaMensaRoute.ShowReviews> {
+            val personalReviewVm = koinViewModel<PersonalReviewViewModel>()
+            val state by personalReviewVm.state.collectAsStateWithLifecycle()
+
+            PersonalReviewScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onEditReview = { reviewId ->
+                    // TODO: create the route for the edit review screen
+                    navController.navigate("edit_review/$reviewId")
+                }
             )
         }
     }

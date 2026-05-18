@@ -35,7 +35,8 @@ fun ProfileScreen(
     authState: AuthState,
     modifier: Modifier = Modifier,
     onLogoutSuccess: () -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onShowReviews: () -> Unit
 ) {
     // Auto-redirect to home when the user is authenticated
     LaunchedEffect(authState.sessionStatus) {

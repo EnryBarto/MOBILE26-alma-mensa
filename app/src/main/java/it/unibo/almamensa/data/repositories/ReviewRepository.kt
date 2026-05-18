@@ -5,13 +5,15 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.result.PostgrestResult
 import it.unibo.almamensa.data.model.Review
+import it.unibo.almamensa.data.model.dto.ReviewWithCanteenDto
 import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 
 interface ReviewRepository {
     suspend fun getAllReviews(): List<Review>
     suspend fun getReviewById(id: Long): Review
     suspend fun getReviewsByCanteenId(canteenId: Long): List<Review>
-    suspend fun getReviewsByUserId(userId: Long): List<Review>
+    suspend fun getReviewsByUserId(userId: String): List<Review>
+    suspend fun getReviewsByUserWithCanteen(userId: String): List<ReviewWithCanteenDto>
     suspend fun getReviewsWithUser(canteenId: Long): List<ReviewWithUserDto>
     suspend fun insertReview(review: Review): PostgrestResult
     suspend fun updateReview(id: Long, review: Review): PostgrestResult
@@ -40,7 +42,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
             }
             .decodeList<Review>()
 
-    override suspend fun getReviewsByUserId(userId: Long): List<Review> =
+    override suspend fun getReviewsByUserId(userId: String): List<Review> =
         supabase.from("review")
             .select {
                 filter {
@@ -48,6 +50,16 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 }
             }
             .decodeList<Review>()
+
+    override suspend fun getReviewsByUserWithCanteen(userId: String): List<ReviewWithCanteenDto> {
+        return supabase.from("review")
+            .select(Columns.raw("*, canteen(name)")) {
+                filter {
+                    eq("user_id", userId)
+                }
+            }
+            .decodeList<ReviewWithCanteenDto>()
+    }
 
     override suspend fun getReviewsWithUser(canteenId: Long): List<ReviewWithUserDto> {
         return supabase.from("review")
