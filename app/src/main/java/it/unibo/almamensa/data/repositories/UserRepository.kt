@@ -63,6 +63,8 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun uploadProfilePicture(uri: Uri) {
+        supabase.auth.awaitInitialization() // Wait for the supabase client to be initialized, sometimes it can be killed, for example when the camera is closed after taking a photo
+
         val userId = supabase.auth.currentUserOrNull()?.id
             ?: error("User not authenticated")
 
