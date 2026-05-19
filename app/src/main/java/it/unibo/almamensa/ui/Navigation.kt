@@ -89,7 +89,8 @@ fun AlmaMensaNavGraph(
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
                 },
-                onSearchQueryChange = canteenVm::onSearchQueryChange
+                onSearchQueryChange = canteenVm::onSearchQueryChange,
+                viewModel = canteenVm
             )
         }
 

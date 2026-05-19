@@ -11,6 +11,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
 import it.unibo.almamensa.data.repositories.BookingRepository
@@ -77,10 +78,11 @@ val appModule = module {
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get()) }
     single<DistanceRepository> { DistanceRepositoryImpl(get()) }
+    single<FavoritesManager> { FavoritesManager(get()) }
 
     viewModel { HomeViewModel(get(), get()) }
     viewModel { AuthViewModel(get()) }
-    viewModel { ExploreViewModel(get()) }
+    viewModel { ExploreViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get() ) }
     viewModel { (canteenId: Long?, reviewId: Long?) -> ReviewViewModel(canteenId, reviewId, get(), get()) }
