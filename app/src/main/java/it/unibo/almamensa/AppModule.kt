@@ -84,7 +84,7 @@ val appModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { ExploreViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
-    viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get() ) }
+    viewModel { (canteenId: Long) -> CanteenViewModel(canteenId, get(), get(), get(), get() ) }
     viewModel { (canteenId: Long?, reviewId: Long?) -> ReviewViewModel(canteenId, reviewId, get(), get()) }
     viewModel { MapViewModel(get()) }
     viewModel { SettingsViewModel(get()) }

@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.CanteenList
@@ -58,7 +57,10 @@ fun ExploreScreen(
             .fillMaxSize()
             .padding(horizontal = Dimensions.screenHorizontalPadding)
     ) {
-        Row {
+        Row (
+            modifier = androidx . compose . ui . Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically // Allinea TextField e Button
+        ) {
             OutlinedTextField(
                 value = state.searchQuery,
                 onValueChange = onSearchQueryChange,
@@ -73,22 +75,27 @@ fun ExploreScreen(
                 },
                 singleLine = true,
                 modifier = Modifier
+                    .weight(1f)
                     .padding(bottom = Dimensions.verticalItemsSpacing)
             )
-            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.outlineVariant,
-                    contentColor = MaterialTheme.colorScheme.background
-                ),
-                onClick = {
-                    showOnlyFavorites = !showOnlyFavorites
-                }
+
+            Spacer(modifier = Modifier.width( 8.dp))
+
+            FilledTonalIconButton(
+                onClick = { showOnlyFavorites = !showOnlyFavorites },
+                modifier = Modifier
+                    .size(56.dp), // set the size of the button same as the height
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = if (showOnlyFavorites) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (showOnlyFavorites) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSecondaryContainer
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = "Preferiti",
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(25.dp)
                 )
             }
         }

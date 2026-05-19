@@ -3,6 +3,7 @@ package it.unibo.almamensa.ui.screens.canteen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 import it.unibo.almamensa.data.repositories.AuthRepository
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 
 data class CanteenState(
     val canteen: Canteen? = null,
+    val isFavorite: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val reviews: List<ReviewWithUserDto> = emptyList(),
@@ -27,7 +29,8 @@ class CanteenViewModel(
     private val canteenId: Long,
     private val canteenRepository: CanteenRepository,
     private val reviewRepository: ReviewRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val favoritesManager: FavoritesManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CanteenState())
@@ -37,6 +40,15 @@ class CanteenViewModel(
         loadCanteenDetails()
         loadCanteenReviews()
         observeAuthStatus()
+    }
+
+    fun toggleFavorite(canteenId: Long) {
+        viewModelScope.launch {
+            val newFavoriteStatus = favoritesManager.toggleFavorite(canteenId)
+            _state.update { currentState ->
+                currentState.copy(isFavorite = newFavoriteStatus)
+            }
+        }
     }
 
     private fun observeAuthStatus() {
@@ -55,10 +67,20 @@ class CanteenViewModel(
             try {
                 val canteen = canteenRepository.getCanteenById(canteenId)
                 _state.value = _state.value.copy(canteen = canteen)
+                checkIfFavorite(canteenId)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(errorMessage = e.localizedMessage)
             } finally {
                 _state.value = _state.value.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun checkIfFavorite(id: Long) {
+        viewModelScope.launch {
+            favoritesManager.favoriteIds.collect { favoriteSet ->
+                val isFav = favoriteSet.contains(id.toString())
+                _state.update { it.copy(isFavorite = isFav) }
             }
         }
     }

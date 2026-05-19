@@ -16,7 +16,8 @@ class FavoritesManager(private val context: Context) {
     val favoriteIds: Flow<Set<String>> = context.dataStore.data
         .map { preferences -> preferences[FAVORITES_KEY] ?: emptySet() }
 
-    suspend fun toggleFavorite(canteenId: Long) {
+    suspend fun toggleFavorite(canteenId: Long): Boolean {
+        var hasBeenAdded = false
         context.dataStore.edit { preferences ->
             val current = preferences[FAVORITES_KEY] ?: emptySet()
             val idStr = canteenId.toString()
@@ -24,7 +25,9 @@ class FavoritesManager(private val context: Context) {
                 preferences[FAVORITES_KEY] = current - idStr
             } else {
                 preferences[FAVORITES_KEY] = current + idStr
+                hasBeenAdded = true
             }
         }
+        return hasBeenAdded
     }
 }

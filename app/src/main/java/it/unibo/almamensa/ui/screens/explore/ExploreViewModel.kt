@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.KoinApplication.Companion.init
 
 data class ExploreState(
     val canteens: List<Canteen> = emptyList(),
@@ -54,12 +53,6 @@ class ExploreViewModel(
             } finally {
                 _state.update { it.copy(isLoading = false) }
             }
-        }
-    }
-
-    fun toggleFavorite(canteenId: Long) {
-        viewModelScope.launch {
-            favoritesManager.toggleFavorite(canteenId)
         }
     }
 

@@ -122,8 +122,11 @@ fun AlmaMensaNavGraph(
 
             CanteenScreen(
                 state = state,
-                onReview = { navController.navigate(AlmaMensaRoute.WriteReview(canteenId = route.canteenId)) },
-                onClearError = canteenDetailsVm::clearError
+                onReview = {
+                    navController.navigate(AlmaMensaRoute.WriteReview(canteenId = route.canteenId))
+                },
+                onClearError = canteenDetailsVm::clearError,
+                onToggleFavorite = { id -> canteenDetailsVm.toggleFavorite(id) }
             )
         }
 

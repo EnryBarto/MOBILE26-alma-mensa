@@ -3,18 +3,24 @@ package it.unibo.almamensa.ui.screens.canteen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -41,10 +47,11 @@ import org.osmdroid.config.Configuration
 
 @Composable
 fun CanteenScreen(
+    modifier: Modifier = Modifier,
     state: CanteenState,
     onReview: () -> Unit,
     onClearError: () -> Unit,
-    modifier: Modifier = Modifier
+    onToggleFavorite: (Long) -> Unit = {}
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,7 +77,7 @@ fun CanteenScreen(
                         .padding(bottom = Dimensions.bottomPaddingButtonBar)
                         .padding(horizontal = Dimensions.screenHorizontalPadding),
                 ) {
-                    CanteenDetailsContent(state)
+                    CanteenDetailsContent(state, onToggleFavorite)
                 }
 
                 val ctx = LocalContext.current
@@ -79,7 +86,7 @@ fun CanteenScreen(
                     SingleButtonBar(
                         text = "Condividi",
                         icon = Icons.Default.Share,
-                        onClick = { shareCanteenLink(ctx, state.canteen?.id ?: 0L) },
+                        onClick = { shareCanteenLink(ctx, state.canteen.id) },
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
                 } else {
@@ -89,7 +96,7 @@ fun CanteenScreen(
                         onClickPrimary = onReview,
                         textSecondary = "Condividi",
                         iconSecondary = Icons.Default.Share,
-                        onClickSecondary = { shareCanteenLink(ctx, state.canteen?.id ?: 0L) },
+                        onClickSecondary = { shareCanteenLink(ctx, state.canteen.id) },
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
                 }
@@ -106,7 +113,7 @@ fun CanteenScreen(
 }
 
 @Composable
-private fun CanteenDetailsContent(state: CanteenState) {
+private fun CanteenDetailsContent(state: CanteenState, onToggleFavorite: (Long) -> Unit) {
     val canteen = state.canteen!!
     val context = LocalContext.current
 
@@ -118,7 +125,7 @@ private fun CanteenDetailsContent(state: CanteenState) {
     Column(
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
-        NameCard(canteen)
+        NameCard(canteen, onToggleFavorite, state.isFavorite)
         HorizontalDivider()
         InfoCard(canteen)
         HorizontalDivider()
@@ -127,18 +134,34 @@ private fun CanteenDetailsContent(state: CanteenState) {
 }
 
 @Composable
-private fun NameCard(canteen: Canteen) {
+private fun NameCard(canteen: Canteen, onToggleFavorite: (Long) -> Unit, isFavorite: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = verticalItemsSpacing),
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
-        Text(
-            text = canteen.name,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        Row{
+            Text(
+                text = canteen.name,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            IconButton(
+                onClick = { onToggleFavorite(canteen.id) }
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.RemoveCircleOutline else Icons.Filled.AddCircleOutline,
+                    contentDescription = if (isFavorite) "Rimuovi dai preferiti" else "Aggiungi ai preferiti",
+                    tint = if (isFavorite)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
 
         if (!canteen.description.isNullOrBlank()) {
             Text(
