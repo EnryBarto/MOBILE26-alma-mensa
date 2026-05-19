@@ -21,7 +21,7 @@ fun PersonalReviewScreen(
     onRefresh: () -> Unit,
     onNavigateBack: () -> Unit,
     onReviewClick: (Long) -> Unit,
-    onEditReview: (Long) -> Unit
+    onDeleteClick: (Long) -> Unit
 ) {
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         onRefresh()
@@ -49,7 +49,8 @@ fun PersonalReviewScreen(
                 else -> {
                     UserReviews(
                         reviews = state.reviews,
-                        onReviewClick = onReviewClick
+                        onReviewClick = onReviewClick,
+                        onDeleteClick = onDeleteClick
                     )
                 }
             }

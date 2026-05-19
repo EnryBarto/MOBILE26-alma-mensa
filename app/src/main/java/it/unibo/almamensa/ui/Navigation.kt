@@ -258,9 +258,7 @@ fun AlmaMensaNavGraph(
                 onReviewClick = { reviewId ->
                     navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
                 },
-                onEditReview = { reviewId ->
-                    navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
-                }
+                onDeleteClick = personalReviewVm::deleteReview
             )
         }
     }
