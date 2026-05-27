@@ -125,10 +125,10 @@ fun NearMeScreen(
                         Slider(
                             value = state.maxDistanceKm,
                             onValueChange = onMaxDistanceChange,
-                            valueRange = 0.5f..150f,
+                            valueRange = 0.5f..15f,
                             modifier = Modifier.weight(1f)
                         )
-                        Text("%.0f km".format(state.maxDistanceKm))
+                        Text("%.1f km".format(state.maxDistanceKm))
                     }
                     LazyColumn(
                         contentPadding = PaddingValues(

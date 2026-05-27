@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -46,16 +45,6 @@ fun PersonalReviewScreen(
         when {
             state.isLoading && state.reviews.isEmpty() -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            state.reviews.isEmpty() -> {
-                Text(
-                    text = "Non hai ancora scritto nessuna recensione.",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Center),
-                    textAlign = TextAlign.Center
-                )
             }
 
             else -> {
@@ -91,27 +80,37 @@ private fun UserReviews(
     ) {
         item {
             Text(
-                text = "Le tue recensioni",
+                text = "Le tue recensioni (${reviews.size})",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        itemsIndexed(reviews) { index, review ->
-            ReviewCard(
-                title = review.canteen.name,
-                review = review.toReview(),
-                onEditClick = { onReviewClick(review.id!!) },
-                onDeleteClick = { onDeleteClick(review.id!!) }
-            )
-
-            if (index < reviews.lastIndex) {
-                Spacer(Modifier.height(verticalItemsSpacing))
-
-                HorizontalDivider(
-                    thickness = 0.3.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
+        if (reviews.isEmpty()) {
+            item {
+                Text(
+                    text = "Non hai ancora scritto nessuna recensione.",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium
                 )
+            }
+        } else {
+            itemsIndexed(reviews) { index, review ->
+                ReviewCard(
+                    title = review.canteen.name,
+                    review = review.toReview(),
+                    onEditClick = { onReviewClick(review.id!!) },
+                    onDeleteClick = { onDeleteClick(review.id!!) }
+                )
+
+                if (index < reviews.lastIndex) {
+                    Spacer(Modifier.height(verticalItemsSpacing))
+
+                    HorizontalDivider(
+                        thickness = 0.3.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
             }
         }
     }
