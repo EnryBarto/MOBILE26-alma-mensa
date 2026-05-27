@@ -85,6 +85,10 @@ class CanteenViewModel(
         }
     }
 
+    fun refresh() {
+        loadCanteenReviews()
+    }
+
     private fun loadCanteenReviews() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)

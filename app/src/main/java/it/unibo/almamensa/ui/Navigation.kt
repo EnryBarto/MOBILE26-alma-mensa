@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -121,6 +123,11 @@ fun AlmaMensaNavGraph(
 
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(route.canteenId) }
             val state by canteenDetailsVm.state.collectAsStateWithLifecycle()
+
+            // Refresh reviews when the screen is resumed (e.g., returning from adding a review)
+            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                canteenDetailsVm.refresh()
+            }
 
             CanteenScreen(
                 state = state,
