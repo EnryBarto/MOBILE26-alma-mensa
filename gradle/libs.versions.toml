@@ -18,6 +18,7 @@ osmdroidAndroid = "6.1.20"
 playServicesLocation = "21.3.0"
 supabaseVersion = "3.1.1"
 material3 = "1.4.0"
+biometric = "1.1.0"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
@@ -54,6 +55,7 @@ realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt", version.r
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabaseVersion" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabaseVersion" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

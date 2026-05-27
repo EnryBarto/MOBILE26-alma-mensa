@@ -104,4 +104,7 @@ dependencies {
 
     // Posizione
     implementation(libs.play.services.location)
+
+    // Biometrics
+    implementation(libs.androidx.biometric)
 }
