@@ -37,7 +37,11 @@ fun showBiometricPrompt(
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle(title)
         .setSubtitle(subtitle)
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        .setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL or
+                BiometricManager.Authenticators.BIOMETRIC_WEAK
+        )
         .build()
 
     biometricPrompt.authenticate(promptInfo)
