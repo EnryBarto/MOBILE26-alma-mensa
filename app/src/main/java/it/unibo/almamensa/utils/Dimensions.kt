@@ -9,8 +9,7 @@ object Dimensions {
     val controlElementLabelPadding = 16.dp
     val verticalItemsSpacing = 16.dp
     val bottomPaddingButtonBar = 100.dp
-    val mapHeight = 400.dp
     val topAppBarPortraitHeight = TopAppBarDefaults.TopAppBarExpandedHeight
     val topAppBarLandscapeHeight = 45.dp
-    val horizontalPaddingUserReviews = 20.dp
+
 }

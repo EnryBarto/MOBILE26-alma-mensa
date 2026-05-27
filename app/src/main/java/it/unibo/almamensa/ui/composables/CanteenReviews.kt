@@ -2,28 +2,26 @@ package it.unibo.almamensa.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
+import it.unibo.almamensa.data.model.dto.toReview
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
-import kotlinx.datetime.Instant
 
 @Composable
-fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
+fun CanteenReviews(
+    reviews: List<ReviewWithUserDto>,
+    onEditReviewClick: (Long) -> Unit,
+    onDeleteReviewClick: (Long) -> Unit,
+    currentUserId: String? = null
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +47,14 @@ fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 reviews.forEachIndexed { index, review ->
-                    ReviewItem(review = review)
+                    val isOwner = review.userId == currentUserId
+
+                    ReviewCard(
+                        title = "${review.user.name} ${review.user.surname}",
+                        review = review.toReview(),
+                        onEditClick = if (isOwner) { { onEditReviewClick(review.id) } } else null,
+                        onDeleteClick = if (isOwner) { { onDeleteReviewClick(review.id) } } else null
+                    )
 
                     if (index < reviews.lastIndex) {
                         HorizontalDivider(
@@ -60,76 +65,5 @@ fun CanteenReviews(reviews: List<ReviewWithUserDto>) {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ReviewItem(review: ReviewWithUserDto) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${review.user.name} ${review.user.surname}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = review.title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f)
-            )
-            RatingBar(score = review.score)
-        }
-
-        review.description?.let {
-            if (it.isNotBlank()) {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        Text(
-            text = formatReviewDate(review.createdAt),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-fun RatingBar(score: Int) {
-    Row {
-        repeat(5) { index ->
-            Icon(
-                imageVector = if (index < score) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                contentDescription = null,
-                tint = if (index < score) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    }
-}
-
-private fun formatReviewDate(dateInstant: Instant): String {
-    return try {
-        dateInstant.toString().split("T")[0]
-    } catch (e: Exception) {
-        dateInstant.toString()
     }
 }

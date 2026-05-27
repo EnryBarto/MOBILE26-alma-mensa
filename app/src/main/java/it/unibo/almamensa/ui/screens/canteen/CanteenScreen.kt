@@ -1,26 +1,28 @@
 package it.unibo.almamensa.ui.screens.canteen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.RateReview
-import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
@@ -51,7 +54,10 @@ fun CanteenScreen(
     state: CanteenState,
     onReview: () -> Unit,
     onClearError: () -> Unit,
-    onToggleFavorite: (Long) -> Unit = {}
+    onToggleFavorite: (Long) -> Unit = {},
+    onEditReviewClick: (Long) -> Unit,
+    onDeleteReviewClick: (Long) -> Unit,
+    currentUserId: String? = null
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -77,7 +83,13 @@ fun CanteenScreen(
                         .padding(bottom = Dimensions.bottomPaddingButtonBar)
                         .padding(horizontal = Dimensions.screenHorizontalPadding),
                 ) {
-                    CanteenDetailsContent(state, onToggleFavorite)
+                    CanteenDetailsContent(
+                        state,
+                        onToggleFavorite,
+                        onEditReviewClick,
+                        onDeleteReviewClick,
+                        currentUserId
+                    )
                 }
 
                 val ctx = LocalContext.current
@@ -113,7 +125,13 @@ fun CanteenScreen(
 }
 
 @Composable
-private fun CanteenDetailsContent(state: CanteenState, onToggleFavorite: (Long) -> Unit) {
+private fun CanteenDetailsContent(
+    state: CanteenState,
+    onToggleFavorite: (Long) -> Unit,
+    onEditReviewClick: (Long) -> Unit,
+    onDeleteReviewClick: (Long) -> Unit,
+    currentUserId: String? = null
+) {
     val canteen = state.canteen!!
     val context = LocalContext.current
 
@@ -129,7 +147,12 @@ private fun CanteenDetailsContent(state: CanteenState, onToggleFavorite: (Long) 
         HorizontalDivider()
         InfoCard(canteen)
         HorizontalDivider()
-        CanteenReviews(reviews = state.reviews)
+        CanteenReviews(
+            reviews = state.reviews,
+            onEditReviewClick = { onEditReviewClick(it) },
+            onDeleteReviewClick = { onDeleteReviewClick(it) },
+            currentUserId = currentUserId
+        )
     }
 }
 
@@ -141,26 +164,29 @@ private fun NameCard(canteen: Canteen, onToggleFavorite: (Long) -> Unit, isFavor
             .padding(bottom = verticalItemsSpacing),
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
-        Row{
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = canteen.name,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
             )
 
-            IconButton(
-                onClick = { onToggleFavorite(canteen.id) }
-            ) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.RemoveCircleOutline else Icons.Filled.AddCircleOutline,
-                    contentDescription = if (isFavorite) "Rimuovi dai preferiti" else "Aggiungi ai preferiti",
-                    tint = if (isFavorite)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+            Icon(
+                imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
+                contentDescription = if (isFavorite) "Rimuovi dai preferiti" else "Aggiungi ai preferiti",
+                tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .size(with(LocalDensity.current) {
+                        MaterialTheme.typography.titleLarge.fontSize.toDp()
+                    })
+                    .clickable { onToggleFavorite(canteen.id) }
+            )
         }
 
         if (!canteen.description.isNullOrBlank()) {

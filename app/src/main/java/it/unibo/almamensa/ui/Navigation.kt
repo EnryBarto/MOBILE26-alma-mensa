@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
+import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.ui.screens.auth.AuthScreen
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
 import it.unibo.almamensa.ui.screens.canteen.CanteenScreen
@@ -120,13 +121,24 @@ fun AlmaMensaNavGraph(
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(route.canteenId) }
             val state by canteenDetailsVm.state.collectAsStateWithLifecycle()
 
+            val authVm = koinViewModel<AuthViewModel>(
+                viewModelStoreOwner = LocalActivity.current as ComponentActivity
+            )
+            val authState by authVm.state.collectAsStateWithLifecycle()
+            val currentUserId = (authState.sessionStatus as? SessionStatus.Authenticated)?.session?.user?.id
+
             CanteenScreen(
                 state = state,
                 onReview = {
                     navController.navigate(AlmaMensaRoute.WriteReview(canteenId = route.canteenId))
                 },
                 onClearError = canteenDetailsVm::clearError,
-                onToggleFavorite = { id -> canteenDetailsVm.toggleFavorite(id) }
+                onToggleFavorite = { id -> canteenDetailsVm.toggleFavorite(id) },
+                currentUserId = currentUserId,
+                onEditReviewClick = { reviewId ->
+                    navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
+                },
+                onDeleteReviewClick = canteenDetailsVm::deleteReview
             )
         }
 
@@ -258,7 +270,6 @@ fun AlmaMensaNavGraph(
             PersonalReviewScreen(
                 state = state,
                 onRefresh = personalReviewVm::loadPersonalReviews, // Pass the refresh function
-                onNavigateBack = { navController.popBackStack() },
                 onReviewClick = { reviewId ->
                     navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
                 },

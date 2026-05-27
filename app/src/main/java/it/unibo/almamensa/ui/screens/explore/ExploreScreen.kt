@@ -2,17 +2,23 @@ package it.unibo.almamensa.ui.screens.explore
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -58,7 +64,9 @@ fun ExploreScreen(
             .padding(horizontal = Dimensions.screenHorizontalPadding)
     ) {
         Row (
-            modifier = androidx . compose . ui . Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically // Allinea TextField e Button
         ) {
             OutlinedTextField(
@@ -84,7 +92,10 @@ fun ExploreScreen(
             FilledTonalIconButton(
                 onClick = { showOnlyFavorites = !showOnlyFavorites },
                 modifier = Modifier
-                    .size(56.dp), // set the size of the button same as the height
+                    .padding(bottom = Dimensions.verticalItemsSpacing)
+                    .fillMaxHeight()
+                    .aspectRatio(1f),
+                shape = CircleShape,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = if (showOnlyFavorites) MaterialTheme.colorScheme.primaryContainer
                     else MaterialTheme.colorScheme.secondaryContainer,
@@ -93,7 +104,7 @@ fun ExploreScreen(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Star,
+                    imageVector = if (showOnlyFavorites) Icons.Default.Star else Icons.Default.StarOutline,
                     contentDescription = "Preferiti",
                     modifier = Modifier.size(25.dp)
                 )

@@ -51,6 +51,17 @@ class CanteenViewModel(
         }
     }
 
+    fun deleteReview(reviewId: Long) {
+        viewModelScope.launch {
+            try {
+                reviewRepository.deleteReview(reviewId)
+                loadCanteenReviews()
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = e.localizedMessage) }
+            }
+        }
+    }
+
     private fun observeAuthStatus() {
         viewModelScope.launch {
             authRepository.sessionStatus().collect { status ->
