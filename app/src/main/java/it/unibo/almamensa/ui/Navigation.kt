@@ -5,6 +5,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,6 +35,7 @@ import it.unibo.almamensa.ui.screens.review.ReviewScreen
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsScreen
 import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
+import it.unibo.almamensa.utils.showBiometricPrompt
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -169,6 +171,7 @@ fun AlmaMensaNavGraph(
             val profileVm = koinViewModel<ProfileViewModel>()
             val state by profileVm.state.collectAsStateWithLifecycle()
 
+            val activity = LocalActivity.current as? FragmentActivity
             val authVm = koinViewModel<AuthViewModel>(
                 viewModelStoreOwner = LocalActivity.current as ComponentActivity
             )
@@ -190,7 +193,16 @@ fun AlmaMensaNavGraph(
                     navController.navigate(AlmaMensaRoute.EditProfile)
                 },
                 onModifyPassword = {
-                    navController.navigate(AlmaMensaRoute.UpdatePassword)
+                    if (activity != null) {
+                        showBiometricPrompt(
+                            activity = activity,
+                            onSuccess = {
+                                navController.navigate(AlmaMensaRoute.UpdatePassword)
+                            }
+                        )
+                    } else {
+                        navController.navigate(AlmaMensaRoute.UpdatePassword)
+                    }
                 }
             )
         }

@@ -2,7 +2,7 @@ package it.unibo.almamensa
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,7 +17,7 @@ import it.unibo.almamensa.ui.theme.AlmaMensaTheme
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val supabase: SupabaseClient by inject()
 
