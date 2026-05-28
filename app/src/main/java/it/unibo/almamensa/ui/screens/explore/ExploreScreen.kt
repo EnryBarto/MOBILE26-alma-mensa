@@ -128,7 +128,12 @@ fun ExploreScreen(
                     }
                 }
                 else -> {
-                    CanteenList(canteens = state.canteens, onCanteenClick = onCanteenClick)
+                    CanteenList(
+                        canteens = state.canteens,
+                        onCanteenClick = onCanteenClick,
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = { viewModel.loadCanteens(showOnlyFavorites, isRefresh = true) }
+                    )
                 }
             }
         }

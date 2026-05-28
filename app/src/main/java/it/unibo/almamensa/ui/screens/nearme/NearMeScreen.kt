@@ -12,12 +12,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -31,6 +33,7 @@ import it.unibo.almamensa.ui.composables.CanteenCard
 import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import it.unibo.almamensa.utils.PermissionStatus
+import it.unibo.almamensa.utils.openAppSettings
 import it.unibo.almamensa.utils.openLocationSettings
 import it.unibo.almamensa.utils.rememberMultiplePermissions
 
@@ -38,6 +41,7 @@ import it.unibo.almamensa.utils.rememberMultiplePermissions
 fun NearMeScreen(
     state: NearMeState,
     onLoad: () -> Unit,
+    onRefresh: () -> Unit,
     onCanteenClick: (Canteen) -> Unit,
     onDismissLocationAlert: () -> Unit,
     onMaxDistanceChange: (Float) -> Unit,
@@ -52,12 +56,18 @@ fun NearMeScreen(
     ) { statuses ->
         when {
             statuses.values.any { it == PermissionStatus.Granted } -> onLoad()
-            statuses.values.all { it == PermissionStatus.PermanentlyDenied } -> openLocationSettings(context)
+            statuses.values.all { it == PermissionStatus.PermanentlyDenied } -> openAppSettings(context)
             else -> {}
         }
     }
 
-    LaunchedEffect(Unit) { onLoad() }
+    LaunchedEffect(Unit) {
+        if (locationPermission.statuses.values.any { it == PermissionStatus.Granted }) {
+            onLoad()
+        } else {
+            locationPermission.launchPermissionRequest()
+        }
+    }
 
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { snackbarHostState.showSnackbar(it) }
@@ -102,18 +112,13 @@ fun NearMeScreen(
             state.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            state.canteens.isEmpty() -> {
-                Text(
-                    text = "Nessuna mensa trovata",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
             else -> {
                 NearMeContent(
                     modifier = modifier,
                     state = state,
                     onCanteenClick = onCanteenClick,
-                    onMaxDistanceChange = onMaxDistanceChange
+                    onMaxDistanceChange = onMaxDistanceChange,
+                    onRefresh = onRefresh
                 )
             }
         }
@@ -125,13 +130,15 @@ fun NearMeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NearMeContent(
     modifier: Modifier = Modifier,
     state: NearMeState,
     onCanteenClick: (Canteen) -> Unit = {},
-    onMaxDistanceChange: (Float) -> Unit = {}
-){
+    onMaxDistanceChange: (Float) -> Unit = {},
+    onRefresh: () -> Unit = {}
+) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
@@ -145,8 +152,7 @@ private fun NearMeContent(
                 .padding(vertical = 8.dp)
         )
         Row(
-            modifier = Modifier
-                .padding(horizontal = Dimensions.screenHorizontalPadding),
+            modifier = Modifier.padding(horizontal = Dimensions.screenHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -159,22 +165,41 @@ private fun NearMeContent(
             )
             Text("%.1f km".format(state.maxDistanceKm))
         }
-        LazyColumn(
-            contentPadding = PaddingValues(
-                horizontal = Dimensions.screenHorizontalPadding,
-                vertical = 8.dp // Used to don't hide the shadow
-            ),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing)
-        ) {
-            items(state.canteens) { item ->
-                val km = "%.1f km".format(item.distanceMeters / 1000)
-                val min = (item.durationSeconds / 60).toInt()
 
-                CanteenCard(
-                    canteen = item.canteen,
-                    onClick = { onCanteenClick(item.canteen) },
-                    distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
-                )
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    horizontal = Dimensions.screenHorizontalPadding,
+                    vertical = 8.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (state.canteens.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillParentMaxSize()) {
+                            Text(
+                                text = "Nessuna mensa trovata",
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                } else {
+                    items(state.canteens) { item ->
+                        val km = "%.1f km".format(item.distanceMeters / 1000)
+                        val min = (item.durationSeconds / 60).toInt()
+
+                        CanteenCard(
+                            canteen = item.canteen,
+                            onClick = { onCanteenClick(item.canteen) },
+                            distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
+                        )
+                    }
+                }
             }
         }
     }

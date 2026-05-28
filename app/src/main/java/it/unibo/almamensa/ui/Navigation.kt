@@ -273,6 +273,7 @@ fun AlmaMensaNavGraph(
             NearMeScreen(
                 state = state,
                 onLoad = nearMeVm::loadNearbyCanteens,
+                onRefresh = { nearMeVm.loadNearbyCanteens(isRefresh = true) },
                 onCanteenClick = { canteen ->
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
                 },

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 data class NearMeState(
     val canteens: List<CanteenDistance> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val maxDistanceKm: Float = 10f,
     val showLocationDisabledAlert: Boolean = false,
@@ -38,18 +39,21 @@ class NearMeViewModel(
             canteens = allCanteens.filter { it.distanceMeters / 1000 <= km }
         )}
     }
-    fun loadNearbyCanteens() {
+    fun loadNearbyCanteens(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
+            if (isRefresh) {
+                _state.update { it.copy(isRefreshing = true) }
+            } else {
+                _state.update { it.copy(isLoading = true) }
+            }
+            _state.update { it.copy(errorMessage = null) }
+
             try {
                 val canteens = canteenRepository.getAllCanteen()
                 val location = locationRepository.getCurrentLocation()
 
                 if (location == null) {
-                    _state.update { it.copy(
-                        isLoading = false,
-                        showPermissionDeniedAlert = true
-                    )}
+                    _state.update { it.copy(showPermissionDeniedAlert = true) }
                     return@launch
                 }
 
@@ -57,15 +61,17 @@ class NearMeViewModel(
                     location.latitude, location.longitude, canteens
                 ).sortedBy { if (it.distanceMeters < 0) Double.MAX_VALUE else it.distanceMeters }
                 allCanteens = sorted
-                _state.update { canteen ->
-                    canteen.copy(
-                    canteens = sorted.filter { it.distanceMeters / 1000 <= _state.value.maxDistanceKm },
-                    isLoading = false
-                )}
+                _state.update {
+                    it.copy(
+                        canteens = sorted.filter { c -> c.distanceMeters / 1000 <= _state.value.maxDistanceKm }
+                    )
+                }
             } catch (e: IllegalStateException) {
-                _state.update { it.copy(isLoading = false, showLocationDisabledAlert = true) }
+                _state.update { it.copy(showLocationDisabledAlert = true) }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, errorMessage = e.message) }
+                _state.update { it.copy(errorMessage = e.message) }
+            } finally {
+                _state.update { it.copy(isLoading = false, isRefreshing = false) }
             }
         }
     }
