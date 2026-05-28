@@ -38,7 +38,6 @@ class CanteenViewModel(
 
     init {
         loadCanteenDetails()
-        loadCanteenReviews()
         observeAuthStatus()
     }
 
@@ -74,15 +73,16 @@ class CanteenViewModel(
 
     private fun loadCanteenDetails() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val canteen = canteenRepository.getCanteenById(canteenId)
-                _state.value = _state.value.copy(canteen = canteen)
+                val reviews = reviewRepository.getReviewsWithUser(canteenId)
+                _state.update { it.copy(canteen = canteen, reviews = reviews) }
                 checkIfFavorite(canteenId)
             } catch (e: Exception) {
-                _state.value = _state.value.copy(errorMessage = e.localizedMessage)
+                _state.update { it.copy(errorMessage = e.localizedMessage) }
             } finally {
-                _state.value = _state.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -97,7 +97,14 @@ class CanteenViewModel(
     }
 
     fun refresh() {
-        loadCanteenReviews()
+        viewModelScope.launch {
+            try {
+                val reviews = reviewRepository.getReviewsWithUser(canteenId)
+                _state.update { it.copy(reviews = reviews) }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = e.localizedMessage) }
+            }
+        }
     }
 
     private fun loadCanteenReviews() {
