@@ -2,8 +2,6 @@ package it.unibo.almamensa.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.auth.status.SessionStatus
-import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +16,6 @@ data class HomeState(
 }
 
 class HomeViewModel(
-    private val authRepository: AuthRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -27,13 +24,8 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            authRepository.sessionStatus().collect { status ->
-                val user = if (status is SessionStatus.Authenticated) {
-                    userRepository.getMyProfile()
-                } else {
-                    null
-                }
-                _state.update { it.copy(userName = user?.name) }
+            userRepository.myProfile.collect { userWithVersion ->
+                _state.update { it.copy(userName = userWithVersion.user?.name) }
             }
         }
     }

@@ -3,6 +3,7 @@ package it.unibo.almamensa.data.repositories
 import android.net.Uri
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 import it.unibo.almamensa.data.model.User
@@ -24,6 +25,7 @@ interface UserRepository {
     suspend fun uploadProfilePicture(uri: Uri)
     suspend fun deleteProfilePicture()
     suspend fun getMyProfile(): User?
+    suspend fun clearProfile()
 }
 
 @Serializable
@@ -41,13 +43,17 @@ class ProfileRepositoryImpl(
     override val myProfile: Flow<UserWithVersion> = _myProfile
 
     override suspend fun getProfile(userId: String): User? =
-        supabase.from("user")
-            .select {
-                filter {
-                    eq("id", userId)
+        try {
+            supabase.from("user")
+                .select {
+                    filter {
+                        eq("id", userId)
+                    }
                 }
-            }
-            .decodeSingleOrNull<User>()
+                .decodeSingleOrNull<User>()
+        } catch (e: HttpRequestException) {
+            null
+        }
 
     override suspend fun updateProfile(name: String, surname: String) {
         val userId = supabase.auth.currentUserOrNull()?.id
@@ -119,5 +125,9 @@ class ProfileRepositoryImpl(
         val user = supabase.auth.currentUserOrNull()?.id?.let { getProfile(it) }
         _myProfile.emit(UserWithVersion(user, System.currentTimeMillis()))
         return user
+    }
+
+    override suspend fun clearProfile() {
+        _myProfile.emit(UserWithVersion(null))
     }
 }

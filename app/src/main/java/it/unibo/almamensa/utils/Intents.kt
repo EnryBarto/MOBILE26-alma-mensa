@@ -36,5 +36,17 @@ fun shareCanteenLink(context: Context, canteenId: Long) {
 }
 
 fun openLocationSettings(context: Context) {
-    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    }
+}
+
+fun openWirelessSettings(ctx: Context) {
+    val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+    if (intent.resolveActivity(ctx.packageManager) != null) {
+        ctx.applicationContext.startActivity(intent)
+    }
 }

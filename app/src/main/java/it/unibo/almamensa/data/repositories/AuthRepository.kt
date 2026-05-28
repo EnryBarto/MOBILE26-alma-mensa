@@ -1,6 +1,5 @@
 package it.unibo.almamensa.data.repositories
 
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.Github
@@ -19,17 +18,21 @@ interface AuthRepository {
     fun sessionStatus(): Flow<SessionStatus>
 }
 
-class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository {
+class AuthRepositoryImpl(
+    private val supabase: SupabaseClient,
+    private val userRepository: UserRepository
+) : AuthRepository {
     override suspend fun signIn(email: String, password: String) {
         supabase.auth.signInWith(Email) {
-            this.email = email
+            this.email = email.trim()
             this.password = password
         }
+        userRepository.getMyProfile()
     }
 
     override suspend fun signUp(email: String, password: String, name: String, surname: String) {
         val userInfo = supabase.auth.signUpWith(Email) {
-            this.email = email
+            this.email = email.trim()
             this.password = password
         }
         
@@ -46,10 +49,12 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
         )
         
         supabase.postgrest["user"].insert(user)
+        userRepository.getMyProfile()
     }
 
     override suspend fun signOut() {
         supabase.auth.signOut()
+        userRepository.clearProfile()
     }
 
     override suspend fun updatePassword(newPsw: String) {
@@ -65,6 +70,7 @@ class AuthRepositoryImpl(private val supabase: SupabaseClient) : AuthRepository 
     override suspend fun signInWithGitHub() {
         try {
             supabase.auth.signInWith(Github, "almamensa://auth-callback")
+            userRepository.getMyProfile()
         } catch (e: Exception) {
             throw Exception("Errore durante il login con GitHub")
         }

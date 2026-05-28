@@ -70,7 +70,7 @@ val appModule = module {
 
     single { get<Context>().dataStore }
 
-    single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<CanteenRepository> { MensaRepositoryImpl(get()) }
     single<UserRepository> { ProfileRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
@@ -80,7 +80,7 @@ val appModule = module {
     single<DistanceRepository> { DistanceRepositoryImpl(get()) }
     single<FavoritesManager> { FavoritesManager(get()) }
 
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get()) }
     viewModel { AuthViewModel(get()) }
     viewModel { ExploreViewModel(get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }

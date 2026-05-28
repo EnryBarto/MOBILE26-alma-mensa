@@ -8,9 +8,11 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -19,8 +21,10 @@ import it.unibo.almamensa.ui.AlmaMensaNavGraph
 import it.unibo.almamensa.ui.AlmaMensaRoute
 import it.unibo.almamensa.ui.composables.AppBar
 import it.unibo.almamensa.ui.composables.AppMenu
+import it.unibo.almamensa.ui.composables.NoConnectivityScreen
 import it.unibo.almamensa.ui.topLevelRoutes
 import it.unibo.almamensa.utils.Dimensions
+import it.unibo.almamensa.utils.observeConnectivity
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,15 +59,25 @@ fun BaseScreen(
         Scaffold(
             topBar = { AppBar(currentDestination, navController, scope, drawerState) }
         ) { innerPadding ->
+
             // Invoke the NavGraph to manage the screen that need to be visualized
             AlmaMensaNavGraph(
                 navController = navController,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(top = Dimensions .topAppBarBottomMargin),
+                    .padding(top = Dimensions.topAppBarBottomMargin),
                 isDarkTheme = isDarkTheme
             )
         }
+    }
+
+    val context = LocalContext.current
+
+    // Observe the connectivity in realtime
+    val isConnected by context.observeConnectivity().collectAsState(initial = true)
+
+    if (!isConnected) {
+        NoConnectivityScreen()
     }
 }
