@@ -1,8 +1,6 @@
 package it.unibo.almamensa.ui.screens.nearme
 
 import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +30,9 @@ import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.CanteenCard
 import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
+import it.unibo.almamensa.utils.PermissionStatus
 import it.unibo.almamensa.utils.openLocationSettings
+import it.unibo.almamensa.utils.rememberMultiplePermissions
 
 @Composable
 fun NearMeScreen(
@@ -47,9 +47,15 @@ fun NearMeScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { onLoad() }
+    val locationPermission = rememberMultiplePermissions(
+        listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    ) { statuses ->
+        when {
+            statuses.values.any { it == PermissionStatus.Granted } -> onLoad()
+            statuses.values.all { it == PermissionStatus.PermanentlyDenied } -> openLocationSettings(context)
+            else -> {}
+        }
+    }
 
     LaunchedEffect(Unit) { onLoad() }
 
@@ -82,7 +88,7 @@ fun NearMeScreen(
             confirmButton = {
                 TextButton(onClick = {
                     onDismissPermissionAlert()
-                    permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    locationPermission.launchPermissionRequest()
                 }) { Text("Concedi") }
             },
             dismissButton = {
@@ -103,52 +109,12 @@ fun NearMeScreen(
                 )
             }
             else -> {
-                Column(
-                    modifier = modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
-                ) {
-                    Text(
-                        text = "Mense più vicine a te",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(horizontal = Dimensions.screenHorizontalPadding)
-                            .padding(vertical = 8.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = Dimensions.screenHorizontalPadding),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text("Entro:")
-                        Slider(
-                            value = state.maxDistanceKm,
-                            onValueChange = onMaxDistanceChange,
-                            valueRange = 0.5f..15f,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text("%.1f km".format(state.maxDistanceKm))
-                    }
-                    LazyColumn(
-                        contentPadding = PaddingValues(
-                            horizontal = Dimensions.screenHorizontalPadding,
-                            vertical = 8.dp // Used to don't hide the shadow
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing)
-                    ) {
-                        items(state.canteens) { item ->
-                            val km = "%.1f km".format(item.distanceMeters / 1000)
-                            val min = (item.durationSeconds / 60).toInt()
-
-                            CanteenCard(
-                                canteen = item.canteen,
-                                onClick = { onCanteenClick(item.canteen) },
-                                distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
-                            )
-                        }
-                    }
-                }
+                NearMeContent(
+                    modifier = modifier,
+                    state = state,
+                    onCanteenClick = onCanteenClick,
+                    onMaxDistanceChange = onMaxDistanceChange
+                )
             }
         }
 
@@ -156,5 +122,60 @@ fun NearMeScreen(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+    }
+}
+
+@Composable
+private fun NearMeContent(
+    modifier: Modifier = Modifier,
+    state: NearMeState,
+    onCanteenClick: (Canteen) -> Unit = {},
+    onMaxDistanceChange: (Float) -> Unit = {}
+){
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
+    ) {
+        Text(
+            text = "Mense più vicine a te",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(horizontal = Dimensions.screenHorizontalPadding)
+                .padding(vertical = 8.dp)
+        )
+        Row(
+            modifier = Modifier
+                .padding(horizontal = Dimensions.screenHorizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Entro:")
+            Slider(
+                value = state.maxDistanceKm,
+                onValueChange = onMaxDistanceChange,
+                valueRange = 0.5f..15f,
+                modifier = Modifier.weight(1f)
+            )
+            Text("%.1f km".format(state.maxDistanceKm))
+        }
+        LazyColumn(
+            contentPadding = PaddingValues(
+                horizontal = Dimensions.screenHorizontalPadding,
+                vertical = 8.dp // Used to don't hide the shadow
+            ),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing)
+        ) {
+            items(state.canteens) { item ->
+                val km = "%.1f km".format(item.distanceMeters / 1000)
+                val min = (item.durationSeconds / 60).toInt()
+
+                CanteenCard(
+                    canteen = item.canteen,
+                    onClick = { onCanteenClick(item.canteen) },
+                    distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
+                )
+            }
+        }
     }
 }

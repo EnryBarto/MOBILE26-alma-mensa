@@ -5,8 +5,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +44,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import it.unibo.almamensa.R
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.utils.PermissionPermanentlyDeniedSnackbar
+import it.unibo.almamensa.utils.PermissionStatus
+import it.unibo.almamensa.utils.isGpsEnabled
+import it.unibo.almamensa.utils.openAppSettings
+import it.unibo.almamensa.utils.openLocationSettings
+import it.unibo.almamensa.utils.rememberMultiplePermissions
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
@@ -70,15 +79,74 @@ fun CanteensMapView(
         )
     }
 
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasLocationPermission = isGranted
+    var showLocationDisabledAlert by remember { mutableStateOf(false) }
+    var showPermissionDeniedAlert by remember { mutableStateOf(false) }
+    var showPermissionPermanentlyDeniedSnackbar by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val locationPermission = rememberMultiplePermissions(
+        listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    ) { statuses ->
+        hasLocationPermission = statuses.values.any { it == PermissionStatus.Granted }
+        when {
+            hasLocationPermission && !isGpsEnabled(context) -> showLocationDisabledAlert = true
+            hasLocationPermission -> {
+                myLocationOverlay.enableMyLocation()
+                myLocationOverlay.runOnFirstFix {
+                    mapView.post {
+                        val userLocation = myLocationOverlay.myLocation
+                        if (userLocation != null) {
+                            mapView.controller.animateTo(userLocation)
+                            mapView.controller.setZoom(16.0)
+                        }
+                    }
+                }
+            }
+            statuses.values.all { it == PermissionStatus.PermanentlyDenied } ->
+                showPermissionPermanentlyDeniedSnackbar = true
+            else -> {}
+        }
+    }
+
+    if (showLocationDisabledAlert) {
+        AlertDialog(
+            onDismissRequest = { showLocationDisabledAlert = false },
+            title = { Text("GPS disabilitato") },
+            text = { Text("Abilita il GPS per vedere la tua posizione sulla mappa.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLocationDisabledAlert = false
+                    openLocationSettings(context)
+                }) { Text("Impostazioni") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLocationDisabledAlert = false }) { Text("Annulla") }
+            }
+        )
+    }
+
+    if (showPermissionDeniedAlert) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDeniedAlert = false },
+            title = { Text("Permesso posizione") },
+            text = { Text("Concedi il permesso di posizione per vedere la tua posizione sulla mappa.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPermissionDeniedAlert = false
+                    locationPermission.launchPermissionRequest()
+                }) { Text("Concedi") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionDeniedAlert = false }) { Text("Annulla") }
+            }
+        )
     }
 
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
-            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            locationPermission.launchPermissionRequest()
+        } else if (!isGpsEnabled(context)) {
+            showLocationDisabledAlert = true
         }
     }
 
@@ -119,6 +187,7 @@ fun CanteensMapView(
                         setTileSource(tileSource)
                         setMultiTouchControls(true)
                         controller.setZoom(15.0)
+                        controller.setCenter(GeoPoint(44.1391, 12.2435)) // Default zoom to Cesena
 
                         if (hasLocationPermission) {
                             myLocationOverlay.enableMyLocation()
@@ -170,31 +239,50 @@ fun CanteensMapView(
                 modifier = Modifier.fillMaxSize()
             )
 
-        if (hasLocationPermission) {
-            IconButton(
-                onClick = {
-                    val userLocation = myLocationOverlay.myLocation
-                    if (userLocation != null) {
-                        mapView.controller.animateTo(userLocation)
-                        mapView.controller.setZoom(16.0)
+        IconButton(
+            onClick = {
+                when {
+                    !hasLocationPermission -> showPermissionDeniedAlert = true
+                    !isGpsEnabled(context) -> showLocationDisabledAlert = true
+                    else -> {
+                        val userLocation = myLocationOverlay.myLocation
+                        if (userLocation != null) {
+                            mapView.controller.animateTo(userLocation)
+                            mapView.controller.setZoom(16.0)
+                        }
                     }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MyLocation,
-                    contentDescription = "Centra sulla mia posizione",
-                    tint = MaterialTheme.colorScheme.primary
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = CircleShape
                 )
-            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.MyLocation,
+                contentDescription = "Centra sulla mia posizione",
+                tint = if (hasLocationPermission && isGpsEnabled(context))
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            )
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
+
+    PermissionPermanentlyDeniedSnackbar(
+        snackbarHostState,
+        show = showPermissionPermanentlyDeniedSnackbar,
+        onAction = { openAppSettings(context) },
+        onHide = { showPermissionPermanentlyDeniedSnackbar = false }
+    )
 }
 
 private fun createMarkerDrawable(context: android.content.Context, color: Int): BitmapDrawable {
