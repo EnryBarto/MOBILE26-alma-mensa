@@ -14,8 +14,6 @@ import io.ktor.serialization.kotlinx.json.json
 import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
-import it.unibo.almamensa.data.repositories.BookingRepository
-import it.unibo.almamensa.data.repositories.BookingRepositoryImpl
 import it.unibo.almamensa.data.repositories.CanteenRepository
 import it.unibo.almamensa.data.repositories.DistanceRepository
 import it.unibo.almamensa.data.repositories.DistanceRepositoryImpl
@@ -35,7 +33,7 @@ import it.unibo.almamensa.ui.screens.home.HomeViewModel
 import it.unibo.almamensa.ui.screens.map.MapViewModel
 import it.unibo.almamensa.ui.screens.nearme.NearMeViewModel
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
-import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewViewModel
+import it.unibo.almamensa.ui.screens.profile.reviews.PersonalReviewViewModel
 import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
@@ -74,7 +72,6 @@ val appModule = module {
     single<CanteenRepository> { MensaRepositoryImpl(get()) }
     single<UserRepository> { ProfileRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
-    single<BookingRepository> { BookingRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get()) }
     single<DistanceRepository> { DistanceRepositoryImpl(get()) }

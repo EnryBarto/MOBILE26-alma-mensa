@@ -20,8 +20,8 @@ data class UserWithVersion(
 interface UserRepository {
     val myProfile: Flow<UserWithVersion>
 
-    suspend fun getProfile(userId: String): User?
-    suspend fun updateProfile(name: String, surname: String)
+    suspend fun getUserById(userId: String): User?
+    suspend fun updateUser(name: String, surname: String)
     suspend fun uploadProfilePicture(uri: Uri)
     suspend fun deleteProfilePicture()
     suspend fun getMyProfile(): User?
@@ -42,7 +42,7 @@ class ProfileRepositoryImpl(
     private val _myProfile = MutableSharedFlow<UserWithVersion>(replay = 1)
     override val myProfile: Flow<UserWithVersion> = _myProfile
 
-    override suspend fun getProfile(userId: String): User? =
+    override suspend fun getUserById(userId: String): User? =
         try {
             supabase.from("user")
                 .select {
@@ -55,7 +55,7 @@ class ProfileRepositoryImpl(
             null
         }
 
-    override suspend fun updateProfile(name: String, surname: String) {
+    override suspend fun updateUser(name: String, surname: String) {
         val userId = supabase.auth.currentUserOrNull()?.id
             ?: error("User not authenticated")
 
@@ -122,7 +122,7 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun getMyProfile(): User? {
-        val user = supabase.auth.currentUserOrNull()?.id?.let { getProfile(it) }
+        val user = supabase.auth.currentUserOrNull()?.id?.let { getUserById(it) }
         _myProfile.emit(UserWithVersion(user, System.currentTimeMillis()))
         return user
     }

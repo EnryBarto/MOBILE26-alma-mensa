@@ -83,7 +83,7 @@ class EditProfileViewModel(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, errorMessage = null, isSaved = false)
             try {
-                userRepository.updateProfile(
+                userRepository.updateUser(
                     name = _state.value.name,
                     surname = _state.value.surname
                 )

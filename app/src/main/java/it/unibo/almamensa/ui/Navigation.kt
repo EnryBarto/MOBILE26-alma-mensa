@@ -30,8 +30,8 @@ import it.unibo.almamensa.ui.screens.nearme.NearMeViewModel
 import it.unibo.almamensa.ui.screens.profile.changepassword.UpdatePasswordScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileScreen
 import it.unibo.almamensa.ui.screens.profile.edit.EditProfileViewModel
-import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewScreen
-import it.unibo.almamensa.ui.screens.profile.review.PersonalReviewViewModel
+import it.unibo.almamensa.ui.screens.profile.reviews.PersonalReviewScreen
+import it.unibo.almamensa.ui.screens.profile.reviews.PersonalReviewViewModel
 import it.unibo.almamensa.ui.screens.profile.view.ProfileScreen
 import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewScreen

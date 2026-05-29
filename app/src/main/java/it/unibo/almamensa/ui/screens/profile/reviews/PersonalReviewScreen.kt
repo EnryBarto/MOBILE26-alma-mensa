@@ -1,4 +1,4 @@
-package it.unibo.almamensa.ui.screens.profile.review
+package it.unibo.almamensa.ui.screens.profile.reviews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

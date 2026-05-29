@@ -27,8 +27,6 @@ class ProfileViewModel(
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
-    private var currentUserId: String? = null
-
     init {
         viewModelScope.launch {
             authRepository.sessionStatus().collect { status ->
@@ -42,26 +40,4 @@ class ProfileViewModel(
             }
         }
     }
-
-    fun refreshProfile() {
-        currentUserId?.let { userId ->
-            viewModelScope.launch {
-                _state.update { it.copy(imageVersion = System.currentTimeMillis()) }
-                loadProfile(userId)
-            }
-        }
-    }
-
-    private suspend fun loadProfile(userId: String) {
-        _state.value = _state.value.copy(isLoading = true)
-        try {
-            val user = userRepository.getProfile(userId)
-            _state.update { it.copy(user = user) }
-        } catch (e: Exception) {
-            _state.value = _state.value.copy(errorMessage = "Errore nel caricamento del profilo")
-        } finally {
-            _state.value = _state.value.copy(isLoading = false)
-        }
-    }
-
 }

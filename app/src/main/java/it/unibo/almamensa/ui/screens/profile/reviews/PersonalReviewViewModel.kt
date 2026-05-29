@@ -1,6 +1,5 @@
-package it.unibo.almamensa.ui.screens.profile.review
+package it.unibo.almamensa.ui.screens.profile.reviews
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.SupabaseClient
