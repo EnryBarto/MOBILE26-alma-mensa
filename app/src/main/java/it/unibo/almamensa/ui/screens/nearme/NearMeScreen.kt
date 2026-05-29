@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +17,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -29,7 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
-import it.unibo.almamensa.ui.composables.CanteenCard
+import it.unibo.almamensa.ui.composables.RefreshableCanteenList
 import it.unibo.almamensa.utils.Dimensions
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import it.unibo.almamensa.utils.PermissionStatus
@@ -151,6 +148,7 @@ private fun NearMeContent(
                 .padding(horizontal = Dimensions.screenHorizontalPadding)
                 .padding(vertical = 8.dp)
         )
+
         Row(
             modifier = Modifier.padding(horizontal = Dimensions.screenHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
@@ -166,41 +164,16 @@ private fun NearMeContent(
             Text("%.1f km".format(state.maxDistanceKm))
         }
 
-        PullToRefreshBox(
+        RefreshableCanteenList(
+            items = state.canteenListItems,
+            onCanteenClick = onCanteenClick,
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    horizontal = Dimensions.screenHorizontalPadding,
-                    vertical = 8.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (state.canteens.isEmpty()) {
-                    item {
-                        Box(modifier = Modifier.fillParentMaxSize()) {
-                            Text(
-                                text = "Nessuna mensa trovata",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                } else {
-                    items(state.canteens) { item ->
-                        val km = "%.1f km".format(item.distanceMeters / 1000)
-                        val min = (item.durationSeconds / 60).toInt()
-
-                        CanteenCard(
-                            canteen = item.canteen,
-                            onClick = { onCanteenClick(item.canteen) },
-                            distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
-                        )
-                    }
-                }
-            }
-        }
+            emptyMessage = "Nessuna mensa trovata",
+            contentPadding = PaddingValues(
+                horizontal = Dimensions.screenHorizontalPadding,
+                vertical = 8.dp
+            )
+        )
     }
 }

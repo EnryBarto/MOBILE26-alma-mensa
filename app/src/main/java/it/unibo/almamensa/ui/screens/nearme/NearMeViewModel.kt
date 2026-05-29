@@ -6,6 +6,7 @@ import it.unibo.almamensa.data.model.CanteenDistance
 import it.unibo.almamensa.data.repositories.CanteenRepository
 import it.unibo.almamensa.data.repositories.DistanceRepository
 import it.unibo.almamensa.data.repositories.LocationRepository
+import it.unibo.almamensa.ui.model.CanteenListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,7 +20,17 @@ data class NearMeState(
     val maxDistanceKm: Float = 10f,
     val showLocationDisabledAlert: Boolean = false,
     val showPermissionDeniedAlert: Boolean = false
-)
+) {
+    val canteenListItems: List<CanteenListItem>
+        get() = canteens.map { item ->
+            val km = "%.1f km".format(item.distanceMeters / 1000)
+            val min = (item.durationSeconds / 60).toInt()
+            CanteenListItem(
+                canteen = item.canteen,
+                distanceInfo = "$km · ${if (min >= 60) "%.1f ore".format(min.toDouble() / 60) else "$min min"} a piedi"
+            )
+        }
+}
 
 class NearMeViewModel(
     private val canteenRepository: CanteenRepository,

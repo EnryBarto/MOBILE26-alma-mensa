@@ -1,8 +1,10 @@
 package it.unibo.almamensa.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,38 +20,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.ui.model.CanteenListItem
 import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CanteenList(
-    canteens: List<Canteen>,
+fun RefreshableCanteenList(
+    items: List<CanteenListItem>,
     onCanteenClick: (Canteen) -> Unit,
     isRefreshing: Boolean = false,
-    onRefresh: () -> Unit = {}
+    onRefresh: () -> Unit = {},
+    emptyMessage: String? = null,
+    contentPadding: PaddingValues = PaddingValues(bottom = 8.dp)
 ) {
     PullToRefreshBox(
         isRefreshing = isRefreshing,
-        onRefresh = onRefresh
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing),
-            contentPadding = PaddingValues(
-                bottom = 8.dp
-            )
+            contentPadding = contentPadding,
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(canteens, key = { it.id }) { canteen ->
-                CanteenCard(
-                    canteen = canteen,
-                    onClick = { onCanteenClick(canteen) }
-                )
+            if (items.isEmpty() && emptyMessage != null) {
+                item {
+                    Box(modifier = Modifier.fillParentMaxSize()) {
+                        EmptyCanteenList(
+                            modifier = Modifier.align(Alignment.Center),
+                            message = emptyMessage
+                        )
+                    }
+                }
+            } else {
+                items(items, key = { it.canteen.id }) { item ->
+                    CanteenCard(
+                        canteen = item.canteen,
+                        onClick = { onCanteenClick(item.canteen) },
+                        distanceInfo = item.distanceInfo
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun EmptyCanteenList(modifier: Modifier = Modifier) {
+private fun EmptyCanteenList(
+    modifier: Modifier = Modifier,
+    message: String = "Nessuna mensa disponibile"
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,7 +82,7 @@ fun EmptyCanteenList(modifier: Modifier = Modifier) {
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Nessuna mensa disponibile",
+            text = message,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -37,8 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
-import it.unibo.almamensa.ui.composables.CanteenList
-import it.unibo.almamensa.ui.composables.EmptyCanteenList
+import it.unibo.almamensa.ui.composables.RefreshableCanteenList
+import it.unibo.almamensa.ui.model.CanteenListItem
 import it.unibo.almamensa.utils.Dimensions
 import org.koin.androidx.compose.koinViewModel
 
@@ -63,79 +63,88 @@ fun ExploreScreen(
             .fillMaxSize()
             .padding(horizontal = Dimensions.screenHorizontalPadding)
     ) {
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min),
-            verticalAlignment = Alignment.CenterVertically // Allinea TextField e Button
-        ) {
-            OutlinedTextField(
-                value = state.searchQuery,
-                onValueChange = onSearchQueryChange,
-                placeholder = { Text("Cerca mensa...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (state.searchQuery.isNotBlank()) {
-                        IconButton(onClick = { onSearchQueryChange("") }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Cancella")
-                        }
-                    }
-                },
-                singleLine = true,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = Dimensions.verticalItemsSpacing)
-            )
+        ExploreNavBar(
+            searchQuery = state.searchQuery,
+            onSearchQueryChange = onSearchQueryChange,
+            showOnlyFavorites = showOnlyFavorites,
+            onToggleFavorites = { showOnlyFavorites = !showOnlyFavorites }
+        )
 
-            Spacer(modifier = Modifier.width( 8.dp))
-
-            FilledTonalIconButton(
-                onClick = { showOnlyFavorites = !showOnlyFavorites },
-                modifier = Modifier
-                    .padding(bottom = Dimensions.verticalItemsSpacing)
-                    .fillMaxHeight()
-                    .aspectRatio(1f),
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = if (showOnlyFavorites) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (showOnlyFavorites) MaterialTheme.colorScheme.onPrimaryContainer
-                    else MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            ) {
-                Icon(
-                    imageVector = if (showOnlyFavorites) Icons.Default.Star else Icons.Default.StarOutline,
-                    contentDescription = "Preferiti",
-                    modifier = Modifier.size(25.dp)
-                )
-            }
-        }
         Box(modifier = Modifier.fillMaxSize()) {
             when {
                 state.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                state.canteens.isEmpty() -> {
-                    if (showOnlyFavorites) {
-                        Text(
-                            text = "Non hai ancora aggiunto nessuna mensa ai preferiti.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    } else {
-                        EmptyCanteenList(modifier = Modifier.align(Alignment.Center))
-                    }
-                }
                 else -> {
-                    CanteenList(
-                        canteens = state.canteens,
+                    RefreshableCanteenList(
+                        items = state.canteens.map { CanteenListItem(it) },
                         onCanteenClick = onCanteenClick,
                         isRefreshing = state.isRefreshing,
-                        onRefresh = { viewModel.loadCanteens(showOnlyFavorites, isRefresh = true) }
+                        onRefresh = { viewModel.loadCanteens(showOnlyFavorites, isRefresh = true) },
+                        emptyMessage =
+                            if (showOnlyFavorites)
+                                "Non hai ancora aggiunto nessuna mensa ai preferiti"
+                            else
+                                "Nessuna mensa trovata"
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ExploreNavBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    showOnlyFavorites: Boolean,
+    onToggleFavorites: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            placeholder = { Text("Cerca mensa...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = {
+                if (searchQuery.isNotBlank()) {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(Icons.Default.Clear, contentDescription = "Cancella")
+                    }
+                }
+            },
+            singleLine = true,
+            modifier = Modifier
+                .weight(1f)
+                .padding(bottom = Dimensions.verticalItemsSpacing)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        FilledTonalIconButton(
+            onClick = onToggleFavorites,
+            modifier = Modifier
+                .padding(bottom = Dimensions.verticalItemsSpacing)
+                .fillMaxHeight()
+                .aspectRatio(1f),
+            shape = CircleShape,
+            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                containerColor = if (showOnlyFavorites) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = if (showOnlyFavorites) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.onSecondaryContainer
+            )
+        ) {
+            Icon(
+                imageVector = if (showOnlyFavorites) Icons.Default.Star else Icons.Default.StarOutline,
+                contentDescription = "Preferiti",
+                modifier = Modifier.size(25.dp)
+            )
         }
     }
 }
