@@ -230,9 +230,10 @@ fun CanteensMapView(
                         view.overlays.add(marker)
                     }
 
-                    if (!hasLocationPermission && canteens.isNotEmpty() && view.mapCenter.latitude == 0.0 && view.mapCenter.longitude == 0.0) {
-                        val firstCanteen = GeoPoint(canteens[0].latitude, canteens[0].longitude)
-                        view.controller.setCenter(firstCanteen)
+                    if (!hasLocationPermission && view.mapCenter.latitude == 0.0 && view.mapCenter.longitude == 0.0) {
+                        canteens.firstOrNull()?.let { first ->
+                            view.controller.setCenter(GeoPoint(first.latitude, first.longitude))
+                        }
                     }
                     view.invalidate()
                 },

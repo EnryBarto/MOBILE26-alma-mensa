@@ -15,4 +15,5 @@ object Dimensions {
     val reviewDescriptionTextFieldHeight = 150.dp
     val bottomButtonBarTopPadding = 8.dp
     val bottomButtonBarBottomPadding = bottomButtonBarTopPadding * 2
+    val drawerMenuWidth = 280.dp
 }
