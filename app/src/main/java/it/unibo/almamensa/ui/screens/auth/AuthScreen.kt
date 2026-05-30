@@ -8,10 +8,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.jan.supabase.auth.status.SessionStatus
 import it.unibo.almamensa.utils.Dimensions
@@ -46,6 +54,10 @@ fun AuthScreen(
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var isRegistering by remember { mutableStateOf(false) }
+    var confirmPassword by remember { mutableStateOf("") }
+    val passwordsMatch = password == confirmPassword
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.sessionStatus) {
         if (state.sessionStatus is SessionStatus.Authenticated) onAuthSuccess()
@@ -54,6 +66,7 @@ fun AuthScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(Dimensions.screenHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
@@ -99,10 +112,44 @@ fun AuthScreen(
             onValueChange = { password = it },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true
+            singleLine = true,
+            isError = isRegistering && confirmPassword.isNotBlank() && !passwordsMatch,
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                    )
+                }
+            }
         )
+
+        if (isRegistering) {
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Ripeti Password") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                isError = confirmPassword.isNotBlank() && !passwordsMatch,
+                supportingText = {
+                    if (confirmPassword.isNotBlank() && !passwordsMatch)
+                        Text("Le password non coincidono")
+                },
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (confirmPasswordVisible) "Nascondi password" else "Mostra password"
+                        )
+                    }
+                }
+            )
+        }
 
         if (state.errorMessage != null) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -123,8 +170,7 @@ fun AuthScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = password.isNotBlank() && state.email.isNotBlank() &&
-                        (!isRegistering || (name.isNotBlank() && surname.isNotBlank()))
-            ) {
+                        (!isRegistering || (name.isNotBlank() && surname.isNotBlank() && passwordsMatch))            ) {
                 Text(if (isRegistering) "Registrati" else "Accedi")
             }
 
@@ -155,7 +201,10 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { isRegistering = !isRegistering }) {
+            TextButton(onClick = {
+                isRegistering = !isRegistering
+                confirmPassword = ""
+            }) {
                 Text(
                     if (isRegistering) "Hai già un account? Accedi"
                     else "Non hai un account? Registrati",

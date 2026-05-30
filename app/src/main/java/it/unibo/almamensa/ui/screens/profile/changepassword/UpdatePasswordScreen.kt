@@ -6,8 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import it.unibo.almamensa.ui.screens.auth.AuthState
 import it.unibo.almamensa.utils.Dimensions
 
@@ -33,6 +39,10 @@ fun UpdatePasswordScreen(
     modifier: Modifier = Modifier
 ) {
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    val passwordsMatch = password == confirmPassword
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isUpdateSuccess) {
         if (state.isUpdateSuccess) onUpdateSuccess()
@@ -59,9 +69,41 @@ fun UpdatePasswordScreen(
             onValueChange = { password = it },
             label = { Text("Nuova Password") },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true
+            singleLine = true,
+            isError = confirmPassword.isNotBlank() && !passwordsMatch,
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                    )
+                }
+            }
+        )
+
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Ripeti Password") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            singleLine = true,
+            isError = confirmPassword.isNotBlank() && !passwordsMatch,
+            supportingText = {
+                if (confirmPassword.isNotBlank() && !passwordsMatch)
+                    Text("Le password non coincidono")
+            },
+            trailingIcon = {
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Icon(
+                        imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (confirmPasswordVisible) "Nascondi password" else "Mostra password"
+                    )
+                }
+            }
         )
 
         if (state.errorMessage != null) {
@@ -78,7 +120,7 @@ fun UpdatePasswordScreen(
             Button(
                 onClick = { onUpdatePassword(password) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = password.isNotBlank()
+                enabled = password.isNotBlank() && passwordsMatch
             ) {
                 Text("Aggiorna Password")
             }
