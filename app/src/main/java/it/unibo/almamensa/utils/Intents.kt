@@ -36,28 +36,26 @@ fun shareCanteenLink(context: Context, canteenId: Long) {
     }
 }
 
-fun openLocationSettings(context: Context) {
-    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+fun openLocationSettings(context: Context) =
+    openSettings(context, Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+
+fun openWirelessSettings(context: Context) =
+    openSettings(context, Settings.ACTION_WIRELESS_SETTINGS)
+
+fun openSecuritySettings(context: Context) =
+    openSettings(context, Settings.ACTION_SECURITY_SETTINGS)
+
+fun openAppSettings(context: Context) {
+    val data = Uri.fromParts("package", context.packageName, null)
+    openSettings(context, Settings.ACTION_APPLICATION_DETAILS_SETTINGS, data)
+}
+
+private fun openSettings(context: Context, action: String, data: Uri? = null) {
+    val intent = Intent(action).apply {
+        this.data = data
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
     if (intent.resolveActivity(context.packageManager) != null) {
         context.startActivity(intent)
-    }
-}
-
-fun openWirelessSettings(ctx: Context) {
-    val intent = Intent(Settings.ACTION_WIRELESS_SETTINGS).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-    if (intent.resolveActivity(ctx.packageManager) != null) {
-        ctx.applicationContext.startActivity(intent)
-    }
-}
-
-fun openAppSettings(ctx: Context) {
-    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.fromParts("package", ctx.packageName, null)
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-    if (intent.resolveActivity(ctx.packageManager) != null) {
-        ctx.startActivity(intent)
     }
 }

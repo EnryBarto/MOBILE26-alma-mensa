@@ -207,12 +207,16 @@ fun AlmaMensaNavGraph(
                 onEditClick = {
                     navController.navigate(AlmaMensaRoute.EditProfile)
                 },
+                onClearSnackbar = profileVm::clearSnackbar,
                 onModifyPassword = {
                     if (activity != null) {
                         showBiometricPrompt(
                             activity = activity,
                             onSuccess = {
                                 navController.navigate(AlmaMensaRoute.UpdatePassword)
+                            },
+                            onError = {
+                                profileVm.onBiometricNotAvailable()
                             }
                         )
                     } else {

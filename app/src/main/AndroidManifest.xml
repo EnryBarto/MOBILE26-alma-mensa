@@ -16,6 +16,9 @@
 
     <queries>
         <intent>
+            <action android:name="android.settings.SECURITY_SETTINGS" />
+        </intent>
+        <intent>
             <action android:name="android.settings.WIRELESS_SETTINGS"/>
         </intent>
         <intent>

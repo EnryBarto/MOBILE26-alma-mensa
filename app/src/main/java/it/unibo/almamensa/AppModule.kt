@@ -15,17 +15,17 @@ import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
 import it.unibo.almamensa.data.repositories.CanteenRepository
+import it.unibo.almamensa.data.repositories.CanteenRepositoryImpl
 import it.unibo.almamensa.data.repositories.DistanceRepository
 import it.unibo.almamensa.data.repositories.DistanceRepositoryImpl
 import it.unibo.almamensa.data.repositories.LocationRepository
 import it.unibo.almamensa.data.repositories.LocationRepositoryImpl
-import it.unibo.almamensa.data.repositories.MensaRepositoryImpl
-import it.unibo.almamensa.data.repositories.ProfileRepositoryImpl
 import it.unibo.almamensa.data.repositories.ReviewRepository
 import it.unibo.almamensa.data.repositories.ReviewRepositoryImpl
 import it.unibo.almamensa.data.repositories.SettingsRepository
 import it.unibo.almamensa.data.repositories.SettingsRepositoryImpl
 import it.unibo.almamensa.data.repositories.UserRepository
+import it.unibo.almamensa.data.repositories.UserRepositoryImpl
 import it.unibo.almamensa.ui.screens.auth.AuthViewModel
 import it.unibo.almamensa.ui.screens.canteen.CanteenViewModel
 import it.unibo.almamensa.ui.screens.explore.ExploreViewModel
@@ -69,8 +69,8 @@ val appModule = module {
     single { get<Context>().dataStore }
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    single<CanteenRepository> { MensaRepositoryImpl(get()) }
-    single<UserRepository> { ProfileRepositoryImpl(get(), get()) }
+    single<CanteenRepository> { CanteenRepositoryImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
     single<LocationRepository> { LocationRepositoryImpl(get()) }

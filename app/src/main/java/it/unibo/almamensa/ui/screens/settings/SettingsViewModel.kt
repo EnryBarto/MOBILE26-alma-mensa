@@ -23,7 +23,7 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = SettingsState(Theme.Sistema, false)
+            initialValue = SettingsState(Theme.SYSTEM, false)
         )
 
     fun setTheme(theme: Theme) {

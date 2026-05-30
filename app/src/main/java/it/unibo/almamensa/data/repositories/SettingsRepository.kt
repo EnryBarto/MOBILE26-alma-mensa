@@ -27,9 +27,9 @@ class SettingsRepositoryImpl (
 
     override val theme = dataStore.data.map { preferences ->
         try {
-            Theme.valueOf(preferences[THEME_KEY] ?: "Sistema")
+            Theme.valueOf(preferences[THEME_KEY] ?: "SYSTEM")
         } catch (_: Exception) {
-            Theme.Sistema
+            Theme.SYSTEM
         }
     }
 

@@ -34,7 +34,7 @@ private data class ProfileUpdate(
     val surname: String
 )
 
-class ProfileRepositoryImpl(
+class UserRepositoryImpl(
     private val supabase: SupabaseClient,
     private val context: android.content.Context
 ) : UserRepository {

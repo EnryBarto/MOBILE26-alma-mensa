@@ -44,7 +44,6 @@ import it.unibo.almamensa.utils.Dimensions.verticalItemsSpacing
 import it.unibo.almamensa.utils.openDialer
 import it.unibo.almamensa.utils.openMaps
 import it.unibo.almamensa.utils.shareCanteenLink
-import org.osmdroid.config.Configuration
 
 @Composable
 fun CanteenScreen(
@@ -133,13 +132,6 @@ private fun CanteenDetailsContent(
     onDeleteReviewClick: (Long) -> Unit,
     currentUserId: String? = null
 ) {
-    val context = LocalContext.current
-
-    // Initialize OsmDroid configuration
-    LaunchedEffect(Unit) {
-        Configuration.getInstance().load(context, context.getSharedPreferences("osm_pref", 0))
-    }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {

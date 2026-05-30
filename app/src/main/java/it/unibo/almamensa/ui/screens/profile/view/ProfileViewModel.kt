@@ -19,7 +19,8 @@
         val user: User? = null,
         val isLoading: Boolean = true,
         val errorMessage: String? = null,
-        val imageVersion: Long = 0
+        val imageVersion: Long = 0,
+        val snackbarMessage: String? = null
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -52,5 +53,13 @@
                         }
                     }
             }
+        }
+
+        fun onBiometricNotAvailable() {
+            _state.update { it.copy(snackbarMessage = "È necessario impostare un blocco schermo per modificare la password") }
+        }
+
+        fun clearSnackbar() {
+            _state.update { it.copy(snackbarMessage = null) }
         }
     }

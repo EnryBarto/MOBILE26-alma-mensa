@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 
+// FragmentActivity required for BiometricPrompt
 class MainActivity : FragmentActivity() {
 
     private val supabase: SupabaseClient by inject()
@@ -32,7 +33,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Gestisce il deep link all'avvio dell'activity
+        // Handle deeplink when the app is not running
         intent?.let { handleDeepLink(it) }
 
         enableEdgeToEdge()
@@ -41,9 +42,9 @@ class MainActivity : FragmentActivity() {
             val themeState by themeViewModel.state.collectAsStateWithLifecycle()
 
             val isDark = when (themeState.theme) {
-                Theme.Chiaro -> false
-                Theme.Scuro -> true
-                Theme.Sistema -> isSystemInDarkTheme()
+                Theme.LIGHT -> false
+                Theme.DARK -> true
+                Theme.SYSTEM -> isSystemInDarkTheme()
             }
 
             AlmaMensaTheme (
@@ -58,24 +59,17 @@ class MainActivity : FragmentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 // Reload profile when the app is reopened
                 userRepository.getMyProfile()
-            }
-        }
-
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 // Reload the profile when connection is restored
                 applicationContext.observeConnectivity()
-                    .filter { isConnected -> isConnected }
-                    .collect {
-                        userRepository.getMyProfile()
-                    }
+                    .filter { it }
+                    .collect { userRepository.getMyProfile() }
             }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Gestisce il deep link se l'app è già in esecuzione
+        // Handle deep link when the app is already running
         handleDeepLink(intent)
     }
 

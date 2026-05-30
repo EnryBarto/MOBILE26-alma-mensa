@@ -48,7 +48,7 @@ fun SettingsScreen(
         Column {
             Theme.entries.forEach { theme ->
                 RadioListItem(
-                    label = theme.toString(),
+                    label = theme.label(),
                     selected = (theme == settingsState.theme),
                     onClick = { onThemeChange(theme) },
                 )

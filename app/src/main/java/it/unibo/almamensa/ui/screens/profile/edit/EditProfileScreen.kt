@@ -170,7 +170,7 @@ private fun EditProfileContent(
                     .align(Alignment.BottomEnd)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f),
-                        shape = androidx.compose.foundation.shape.CircleShape
+                        shape = CircleShape
                     )
                     .size(36.dp)
             ) {

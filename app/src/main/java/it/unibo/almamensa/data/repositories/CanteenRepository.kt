@@ -1,7 +1,7 @@
 package it.unibo.almamensa.data.repositories
 
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.result.PostgrestResult
 import it.unibo.almamensa.data.model.Canteen
 
@@ -13,7 +13,7 @@ interface CanteenRepository {
     suspend fun deleteCanteen(id: Long) : PostgrestResult
 }
 
-class MensaRepositoryImpl(private val supabase: SupabaseClient) : CanteenRepository {
+class CanteenRepositoryImpl(private val supabase: SupabaseClient) : CanteenRepository {
     override suspend fun getAllCanteen() =
         supabase.from("canteen").select().decodeList<Canteen>()
 
