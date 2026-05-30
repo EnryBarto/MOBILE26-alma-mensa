@@ -95,7 +95,9 @@ fun AlmaMensaNavGraph(
                     navController.navigate(AlmaMensaRoute.CanteenDetails(canteen.id))
                 },
                 onSearchQueryChange = canteenVm::onSearchQueryChange,
-                viewModel = canteenVm
+                onLoadCanteens = canteenVm::loadCanteens,
+                onToggleFavorites = canteenVm::toggleFavorites,
+                showOnlyFavorites = state.showOnlyFavorites
             )
         }
 
@@ -125,9 +127,7 @@ fun AlmaMensaNavGraph(
             val canteenDetailsVm = koinViewModel<CanteenViewModel> { parametersOf(route.canteenId) }
             val state by canteenDetailsVm.state.collectAsStateWithLifecycle()
 
-            val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity
-            )
+            val authVm = authViewModel()
             val authState by authVm.state.collectAsStateWithLifecycle()
             val currentUserId = (authState.sessionStatus as? SessionStatus.Authenticated)?.session?.user?.id
 
@@ -168,9 +168,7 @@ fun AlmaMensaNavGraph(
         }
 
         composable<AlmaMensaRoute.Auth> {
-            val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity
-            )
+            val authVm = authViewModel()
             val state by authVm.state.collectAsStateWithLifecycle()
             AuthScreen(
                 state = state,
@@ -191,9 +189,7 @@ fun AlmaMensaNavGraph(
             val state by profileVm.state.collectAsStateWithLifecycle()
 
             val activity = LocalActivity.current as? FragmentActivity
-            val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity
-            )
+            val authVm = authViewModel()
             val authState by authVm.state.collectAsStateWithLifecycle()
 
             ProfileScreen(
@@ -252,9 +248,7 @@ fun AlmaMensaNavGraph(
         }
 
         composable<AlmaMensaRoute.UpdatePassword> {
-            val authVm = koinViewModel<AuthViewModel>(
-                viewModelStoreOwner = LocalActivity.current as ComponentActivity
-            )
+            val authVm = authViewModel()
             val state by authVm.state.collectAsStateWithLifecycle()
             UpdatePasswordScreen(
                 state = state,
@@ -289,7 +283,7 @@ fun AlmaMensaNavGraph(
 
             PersonalReviewScreen(
                 state = state,
-                onRefresh = personalReviewVm::loadPersonalReviews, // Pass the refresh function
+                onRefresh = personalReviewVm::loadPersonalReviews,
                 onReviewClick = { reviewId ->
                     navController.navigate(AlmaMensaRoute.WriteReview(reviewId = reviewId))
                 },
@@ -298,3 +292,8 @@ fun AlmaMensaNavGraph(
         }
     }
 }
+
+@Composable
+private fun authViewModel() = koinViewModel<AuthViewModel>(
+    viewModelStoreOwner = LocalActivity.current as ComponentActivity
+)

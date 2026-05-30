@@ -31,11 +31,14 @@ import kotlinx.coroutines.launch
 fun BaseScreen(
     isDarkTheme: Boolean = false
 ) {
+    val context = LocalContext.current
+
+    // Observe the connectivity in realtime
+    val isConnected by context.observeConnectivity().collectAsState(initial = true)
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    // Get current user position
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -48,19 +51,18 @@ fun BaseScreen(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        // Disabling gesture on MapScreen
+        // Enable gestures is top routes, except for MapScreen
         gesturesEnabled = currentDestination?.hierarchy?.any { dest ->
             topLevelRoutes.any { route ->
                 dest.hasRoute(route) && !dest.hasRoute(AlmaMensaRoute.Map::class)
             }
-        } == true, // Enable swipe to open menu bar only in home screen
+        } == true,
         drawerContent = { AppMenu(currentDestination, navController, drawerState, scope) }
     ) {
         Scaffold(
             topBar = { AppBar(currentDestination, navController, scope, drawerState) }
         ) { innerPadding ->
 
-            // Invoke the NavGraph to manage the screen that need to be visualized
             AlmaMensaNavGraph(
                 navController = navController,
                 modifier = Modifier
@@ -71,11 +73,6 @@ fun BaseScreen(
             )
         }
     }
-
-    val context = LocalContext.current
-
-    // Observe the connectivity in realtime
-    val isConnected by context.observeConnectivity().collectAsState(initial = true)
 
     if (!isConnected) {
         NoConnectivityScreen()

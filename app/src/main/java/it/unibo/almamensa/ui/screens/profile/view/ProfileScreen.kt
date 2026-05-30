@@ -9,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Feed
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +37,7 @@ fun ProfileScreen(
     onLogoutSuccess: () -> Unit,
     onEditClick: () -> Unit,
 ) {
-    // Auto-redirect to home when the user is authenticated
+    // Auto-redirect to home when the user has logged out
     LaunchedEffect(authState.sessionStatus) {
         if (authState.sessionStatus is SessionStatus.NotAuthenticated) {
             onLogoutSuccess()
@@ -50,6 +49,8 @@ fun ProfileScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
+            profileState.isLoading -> CircularProgressIndicator()
+
             profileState.errorMessage != null -> Text(
                 text = profileState.errorMessage,
                 color = MaterialTheme.colorScheme.error
@@ -73,15 +74,17 @@ fun ProfileScreen(
                 )
             }
 
-            profileState.isLoading -> CircularProgressIndicator()
-
             else -> Text("ERRORE: Nessun profilo trovato")
         }
     }
 }
 
 @Composable
-private fun ProfileContent(user: User, imageVersion: Long = 0, onModifyPassword: () -> Unit = {}) {
+private fun ProfileContent(
+    user: User,
+    imageVersion: Long,
+    onModifyPassword: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -52,7 +52,7 @@ fun ReviewScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = Dimensions.screenHorizontalPadding)
@@ -107,7 +107,7 @@ fun ReviewScreen(
                 label = { Text("Descrizione (opzionale)") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp),
+                    .height(Dimensions.reviewDescriptionTextFieldHeight),
                 enabled = !state.isLoading
             )
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
@@ -127,14 +126,13 @@ fun NearMeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NearMeContent(
     modifier: Modifier = Modifier,
     state: NearMeState,
-    onCanteenClick: (Canteen) -> Unit = {},
-    onMaxDistanceChange: (Float) -> Unit = {},
-    onRefresh: () -> Unit = {}
+    onCanteenClick: (Canteen) -> Unit,
+    onMaxDistanceChange: (Float) -> Unit,
+    onRefresh: () -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize(),

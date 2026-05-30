@@ -29,10 +29,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,22 +36,21 @@ import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.ui.composables.RefreshableCanteenList
 import it.unibo.almamensa.ui.model.CanteenListItem
 import it.unibo.almamensa.utils.Dimensions
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ExploreScreen(
     state: ExploreState,
     onCanteenClick: (Canteen) -> Unit,
     onSearchQueryChange: (String) -> Unit,
+    onLoadCanteens: (showFavorites: Boolean, isRefresh: Boolean) -> Unit,
+    onToggleFavorites: () -> Unit,
+    showOnlyFavorites: Boolean,
     modifier: Modifier = Modifier,
-    initialFavoritesOnly: Boolean = false,
-    viewModel: ExploreViewModel = koinViewModel()
 ) {
-    var showOnlyFavorites by remember { mutableStateOf(initialFavoritesOnly) }
 
     // Everytime the parameter changes we reload the data
     LaunchedEffect(showOnlyFavorites) {
-        viewModel.loadCanteens(showOnlyFavorites)
+        onLoadCanteens(showOnlyFavorites, false)
     }
 
     Column(
@@ -67,7 +62,7 @@ fun ExploreScreen(
             searchQuery = state.searchQuery,
             onSearchQueryChange = onSearchQueryChange,
             showOnlyFavorites = showOnlyFavorites,
-            onToggleFavorites = { showOnlyFavorites = !showOnlyFavorites }
+            onToggleFavorites = onToggleFavorites
         )
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -80,7 +75,7 @@ fun ExploreScreen(
                         items = state.canteens.map { CanteenListItem(it) },
                         onCanteenClick = onCanteenClick,
                         isRefreshing = state.isRefreshing,
-                        onRefresh = { viewModel.loadCanteens(showOnlyFavorites, isRefresh = true) },
+                        onRefresh = { onLoadCanteens(showOnlyFavorites, true) },
                         emptyMessage =
                             if (showOnlyFavorites)
                                 "Non hai ancora aggiunto nessuna mensa ai preferiti"
@@ -143,7 +138,7 @@ private fun ExploreNavBar(
             Icon(
                 imageVector = if (showOnlyFavorites) Icons.Default.Star else Icons.Default.StarOutline,
                 contentDescription = "Preferiti",
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
     }

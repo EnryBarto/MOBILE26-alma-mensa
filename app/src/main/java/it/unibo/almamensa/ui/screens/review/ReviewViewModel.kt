@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ReviewState(
     val title: String = "",
     val score: Int = 5,
     val description: String = "",
+    val canteenId: Long? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
@@ -40,59 +42,60 @@ class ReviewViewModel(
 
     private fun loadReview(id: Long) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            _state.update { it.copy(isLoading = true) }
             try {
                 val review = reviewRepository.getReviewById(id)
-                _state.value = _state.value.copy(
+                _state.update { it.copy(
                     title = review.title,
                     score = review.score,
                     description = review.description ?: "",
+                    canteenId = review.canteenId,
                     isLoading = false
-                )
+                )}
             } catch (e: Exception) {
-                _state.value = _state.value.copy(
+                _state.update { it.copy(
                     isLoading = false,
                     errorMessage = "Errore nel caricamento della recensione: ${e.message}"
-                )
+                )}
             }
         }
     }
 
     fun onTitleChange(newTitle: String) {
-        _state.value = _state.value.copy(title = newTitle)
+        _state.update { it.copy(title = newTitle) }
     }
 
     fun onScoreChange(newScore: Int) {
-        _state.value = _state.value.copy(score = newScore)
+        _state.update { it.copy(score = newScore) }
     }
 
     fun onDescriptionChange(newDescription: String) {
-        _state.value = _state.value.copy(description = newDescription)
+        _state.update { it.copy(description = newDescription) }
     }
 
     fun submitReview() {
         val currentState = _state.value
         if (currentState.title.isBlank()) {
-            _state.value = currentState.copy(errorMessage = "Il titolo non può essere vuoto")
+            _state.update { it.copy(errorMessage = "Il titolo non può essere vuoto") }
             return
         }
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val sessionStatus = authRepository.sessionStatus().first()
                 if (sessionStatus is SessionStatus.Authenticated) {
                     val userId = sessionStatus.session.user?.id ?: throw Exception("Utente non autenticato")
-                    
+
                     if (reviewId != null) {
                         // Update existing review
-                        val existingReview = reviewRepository.getReviewById(reviewId)
                         val updatedReview = Review(
                             id = reviewId,
                             score = currentState.score,
                             description = currentState.description,
                             title = currentState.title,
-                            canteenId = existingReview.canteenId,
+                            canteenId = currentState.canteenId
+                                ?: throw Exception("canteenId mancante"),
                             userId = userId
                         )
                         reviewRepository.updateReview(reviewId, updatedReview)
@@ -109,15 +112,15 @@ class ReviewViewModel(
                     } else {
                         throw Exception("Dati mancanti per l'operazione")
                     }
-                    
-                    _state.value = _state.value.copy(isSuccess = true)
+
+                    _state.update { it.copy(isSuccess = true) }
                 } else {
-                    _state.value = _state.value.copy(errorMessage = "Devi essere loggato per lasciare una recensione")
+                    _state.update { it.copy(errorMessage = "Devi essere loggato per lasciare una recensione") }
                 }
             } catch (e: Exception) {
-                _state.value = _state.value.copy(errorMessage = "Errore durante il salvataggio: ${e.message}")
+                _state.update { it.copy(errorMessage = "Errore durante il salvataggio: ${e.message}") }
             } finally {
-                _state.value = _state.value.copy(isLoading = false)
+                _state.update { it.copy(isLoading = false) }
             }
         }
     }

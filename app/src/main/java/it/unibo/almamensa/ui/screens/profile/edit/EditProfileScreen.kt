@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -56,9 +57,9 @@ fun EditProfileScreen(
     onNameChange: (String) -> Unit,
     onSurnameChange: (String) -> Unit,
     onSaveClick: () -> Unit,
-    onDeleteImageClick: () -> Unit = {},
+    onDeleteImageClick: () -> Unit,
     onAvatarPicked: (Uri) -> Unit,
-    onSaveSuccess: () -> Unit = {}
+    onSaveSuccess: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -85,7 +86,9 @@ fun EditProfileScreen(
         contentAlignment = Alignment.Center
     ) {
         when {
-            state.name.isNotEmpty() || state.surname.isNotEmpty() -> {
+            state.isLoading -> CircularProgressIndicator()
+
+            else -> {
                 EditProfileContent(
                     state = state,
                     onNameChange = onNameChange,
@@ -102,10 +105,6 @@ fun EditProfileScreen(
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
-
-            state.isLoading -> CircularProgressIndicator()
-
-            else -> CircularProgressIndicator()
         }
 
         SnackbarHost(
@@ -122,7 +121,7 @@ private fun EditProfileContent(
     onSurnameChange: (String) -> Unit,
     onPickImageClick: () -> Unit,
     onTakePhotoClick: () -> Unit,
-    onDeleteImageClick: () -> Unit = {}
+    onDeleteImageClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -153,7 +152,7 @@ private fun EditProfileContent(
                         .align(Alignment.BottomStart)
                         .background(
                             color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f),
-                            shape = androidx.compose.foundation.shape.CircleShape
+                            shape = CircleShape
                         )
                         .size(36.dp)
                 ) {

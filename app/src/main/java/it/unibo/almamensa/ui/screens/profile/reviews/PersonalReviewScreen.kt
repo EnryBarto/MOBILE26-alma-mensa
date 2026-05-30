@@ -99,8 +99,8 @@ private fun UserReviews(
                 ReviewCard(
                     title = review.canteen.name,
                     review = review.toReview(),
-                    onEditClick = { onReviewClick(review.id!!) },
-                    onDeleteClick = { onDeleteClick(review.id!!) }
+                    onEditClick = { onReviewClick(review.id) },
+                    onDeleteClick = { onDeleteClick(review.id) }
                 )
 
                 if (index < reviews.lastIndex) {

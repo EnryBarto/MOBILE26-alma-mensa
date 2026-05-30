@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReviewWithCanteenDto(
-    val id: Long? = null,
+    val id: Long,
 
     @SerialName("created_at")
     val createdAt: Instant,

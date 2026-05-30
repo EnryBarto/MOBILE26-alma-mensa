@@ -17,7 +17,8 @@ data class ExploreState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showOnlyFavorites: Boolean = false
 )
 
 class ExploreViewModel(
@@ -72,5 +73,11 @@ class ExploreViewModel(
                         canteen.description?.contains(query, ignoreCase = true) == true
             }
         )}
+    }
+
+    fun toggleFavorites() {
+        val newValue = !_state.value.showOnlyFavorites
+        _state.update { it.copy(showOnlyFavorites = newValue) }
+        loadCanteens(newValue)
     }
 }

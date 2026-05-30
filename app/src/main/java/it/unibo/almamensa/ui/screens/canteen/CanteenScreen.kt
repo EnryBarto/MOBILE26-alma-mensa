@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -33,10 +32,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Canteen
+import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 import it.unibo.almamensa.ui.composables.CanteenReviews
 import it.unibo.almamensa.ui.composables.DoubleButtonBar
 import it.unibo.almamensa.ui.composables.InfoItem
@@ -59,8 +57,9 @@ fun CanteenScreen(
     onDeleteReviewClick: (Long) -> Unit,
     currentUserId: String? = null
 ) {
-
+    val ctx = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+
     // Show error as snackbar
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let {
@@ -84,15 +83,15 @@ fun CanteenScreen(
                         .padding(horizontal = Dimensions.screenHorizontalPadding),
                 ) {
                     CanteenDetailsContent(
-                        state,
+                        state.canteen,
+                        state.isFavorite,
+                        state.reviews,
                         onToggleFavorite,
                         onEditReviewClick,
                         onDeleteReviewClick,
                         currentUserId
                     )
                 }
-
-                val ctx = LocalContext.current
 
                 if (!state.isLoggedIn) {
                     SingleButtonBar(
@@ -119,23 +118,24 @@ fun CanteenScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = if (state.isLoggedIn) 80.dp else 16.dp)
+                .padding(bottom = if (state.isLoggedIn) Dimensions.bottomPaddingButtonBar else Dimensions.bottomPaddingNoBar)
         )
     }
 }
 
 @Composable
 private fun CanteenDetailsContent(
-    state: CanteenState,
+    canteen: Canteen,
+    isFavorite: Boolean,
+    reviews: List<ReviewWithUserDto>,
     onToggleFavorite: (Long) -> Unit,
     onEditReviewClick: (Long) -> Unit,
     onDeleteReviewClick: (Long) -> Unit,
     currentUserId: String? = null
 ) {
-    val canteen = state.canteen!!
     val context = LocalContext.current
 
-    // Initialize OsmDroid configuration (required)
+    // Initialize OsmDroid configuration
     LaunchedEffect(Unit) {
         Configuration.getInstance().load(context, context.getSharedPreferences("osm_pref", 0))
     }
@@ -143,12 +143,12 @@ private fun CanteenDetailsContent(
     Column(
         verticalArrangement = Arrangement.spacedBy(verticalItemsSpacing)
     ) {
-        NameCard(canteen, onToggleFavorite, state.isFavorite)
+        NameCard(canteen, onToggleFavorite, isFavorite)
         HorizontalDivider()
         InfoCard(canteen)
         HorizontalDivider()
         CanteenReviews(
-            reviews = state.reviews,
+            reviews = reviews,
             onEditReviewClick = { onEditReviewClick(it) },
             onDeleteReviewClick = { onDeleteReviewClick(it) },
             currentUserId = currentUserId
@@ -181,11 +181,7 @@ private fun NameCard(canteen: Canteen, onToggleFavorite: (Long) -> Unit, isFavor
                 imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
                 contentDescription = if (isFavorite) "Rimuovi dai preferiti" else "Aggiungi ai preferiti",
                 tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                modifier = Modifier
-                    .size(with(LocalDensity.current) {
-                        MaterialTheme.typography.titleLarge.fontSize.toDp()
-                    })
-                    .clickable { onToggleFavorite(canteen.id) }
+                modifier = Modifier.clickable { onToggleFavorite(canteen.id) }
             )
         }
 

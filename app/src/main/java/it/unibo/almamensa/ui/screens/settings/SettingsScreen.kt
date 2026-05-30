@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import it.unibo.almamensa.data.model.Theme
 import it.unibo.almamensa.ui.composables.RadioListItem
 import it.unibo.almamensa.utils.Dimensions
@@ -30,7 +29,7 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = Dimensions.screenHorizontalPadding),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimensions.verticalItemsSpacing)
     ) {
         Text(
             text = "Impostazioni",
