@@ -2,9 +2,9 @@ package it.unibo.almamensa.ui.screens.explore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.data.repositories.CanteenRepository
+import it.unibo.almamensa.data.repositories.FavoritesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +23,7 @@ data class ExploreState(
 
 class ExploreViewModel(
     private val canteenRepository: CanteenRepository,
-    private val favoritesManager: FavoritesManager
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ExploreState())
@@ -32,7 +32,7 @@ class ExploreViewModel(
 
     init {
         viewModelScope.launch {
-            favoritesManager.favoriteIds.collect { ids ->
+            favoritesRepository.favoriteIds.collect { ids ->
                 favoriteIds = ids
             }
         }

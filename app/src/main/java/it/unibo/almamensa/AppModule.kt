@@ -11,13 +11,14 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
-import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.AuthRepositoryImpl
 import it.unibo.almamensa.data.repositories.CanteenRepository
 import it.unibo.almamensa.data.repositories.CanteenRepositoryImpl
 import it.unibo.almamensa.data.repositories.DistanceRepository
 import it.unibo.almamensa.data.repositories.DistanceRepositoryImpl
+import it.unibo.almamensa.data.repositories.FavoritesRepository
+import it.unibo.almamensa.data.repositories.FavoritesRepositoryImpl
 import it.unibo.almamensa.data.repositories.LocationRepository
 import it.unibo.almamensa.data.repositories.LocationRepositoryImpl
 import it.unibo.almamensa.data.repositories.ReviewRepository
@@ -38,9 +39,11 @@ import it.unibo.almamensa.ui.screens.profile.view.ProfileViewModel
 import it.unibo.almamensa.ui.screens.review.ReviewViewModel
 import it.unibo.almamensa.ui.screens.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val Context.dataStore by preferencesDataStore("theme")
+val Context.favoritesDataStore by preferencesDataStore("favorites_prefs")
 
 val appModule = module {
 
@@ -66,16 +69,18 @@ val appModule = module {
         }
     }
 
-    single { get<Context>().dataStore }
+    single(named("theme")) { get<Context>().dataStore }
+    single(named("favorites")) { get<Context>().favoritesDataStore }
+
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<CanteenRepository> { CanteenRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get()) }
-    single<SettingsRepository> { SettingsRepositoryImpl(get()) }
+    single<SettingsRepository> { SettingsRepositoryImpl(get(named("theme"))) }
     single<LocationRepository> { LocationRepositoryImpl(get()) }
     single<DistanceRepository> { DistanceRepositoryImpl(get()) }
-    single<FavoritesManager> { FavoritesManager(get()) }
+    single<FavoritesRepository> { FavoritesRepositoryImpl(get(named("favorites"))) }
 
     viewModel { HomeViewModel(get()) }
     viewModel { AuthViewModel(get()) }

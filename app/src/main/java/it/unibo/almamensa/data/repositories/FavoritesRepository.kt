@@ -1,24 +1,33 @@
-package it.unibo.almamensa.data.local
+package it.unibo.almamensa.data.repositories
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore by preferencesDataStore(name = "favorites_prefs")
+interface FavoritesRepository {
+    val favoriteIds: Flow<Set<String>>
+    suspend fun toggleFavorite(canteenId: Long): Boolean
+}
 
-class FavoritesManager(private val context: Context) {
-    private val FAVORITES_KEY = stringSetPreferencesKey("favorite_canteen_ids")
+// Implemented using DataStore, so the favorites are saved into the Device
+class FavoritesRepositoryImpl(
+    private val dataStore: DataStore<Preferences>
+) : FavoritesRepository {
+
+    companion object {
+        private val FAVORITES_KEY = stringSetPreferencesKey("favorite_canteen_ids")
+    }
 
     // Retrieve the ID (as string) of the favorites canteen.
-    val favoriteIds: Flow<Set<String>> = context.dataStore.data
+    override val favoriteIds: Flow<Set<String>> = dataStore.data
         .map { preferences -> preferences[FAVORITES_KEY] ?: emptySet() }
 
-    suspend fun toggleFavorite(canteenId: Long): Boolean {
+    override suspend fun toggleFavorite(canteenId: Long): Boolean {
         var hasBeenAdded = false
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val current = preferences[FAVORITES_KEY] ?: emptySet()
             val idStr = canteenId.toString()
             if (current.contains(idStr)) {

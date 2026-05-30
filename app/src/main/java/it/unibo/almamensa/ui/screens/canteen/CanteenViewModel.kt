@@ -3,11 +3,11 @@ package it.unibo.almamensa.ui.screens.canteen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.status.SessionStatus
-import it.unibo.almamensa.data.local.FavoritesManager
 import it.unibo.almamensa.data.model.Canteen
 import it.unibo.almamensa.data.model.dto.ReviewWithUserDto
 import it.unibo.almamensa.data.repositories.AuthRepository
 import it.unibo.almamensa.data.repositories.CanteenRepository
+import it.unibo.almamensa.data.repositories.FavoritesRepository
 import it.unibo.almamensa.data.repositories.ReviewRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +30,7 @@ class CanteenViewModel(
     private val canteenRepository: CanteenRepository,
     private val reviewRepository: ReviewRepository,
     private val authRepository: AuthRepository,
-    private val favoritesManager: FavoritesManager
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CanteenState())
@@ -43,7 +43,7 @@ class CanteenViewModel(
 
     fun toggleFavorite(canteenId: Long) {
         viewModelScope.launch {
-            val newFavoriteStatus = favoritesManager.toggleFavorite(canteenId)
+            val newFavoriteStatus = favoritesRepository.toggleFavorite(canteenId)
             _state.update { currentState ->
                 currentState.copy(isFavorite = newFavoriteStatus)
             }
@@ -89,7 +89,7 @@ class CanteenViewModel(
 
     private fun checkIfFavorite(id: Long) {
         viewModelScope.launch {
-            favoritesManager.favoriteIds.collect { favoriteSet ->
+            favoritesRepository.favoriteIds.collect { favoriteSet ->
                 val isFav = favoriteSet.contains(id.toString())
                 _state.update { it.copy(isFavorite = isFav) }
             }
