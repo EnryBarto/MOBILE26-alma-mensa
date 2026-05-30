@@ -17,7 +17,7 @@ data class NearMeState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
-    val maxDistanceKm: Float = 10f,
+    val maxDistanceKm: Float = 2f,
     val showLocationDisabledAlert: Boolean = false,
     val showPermissionDeniedAlert: Boolean = false
 ) {

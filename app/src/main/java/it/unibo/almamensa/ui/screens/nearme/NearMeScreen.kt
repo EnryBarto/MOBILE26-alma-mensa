@@ -167,7 +167,7 @@ private fun NearMeContent(
             onCanteenClick = onCanteenClick,
             isRefreshing = state.isRefreshing,
             onRefresh = onRefresh,
-            emptyMessage = "Nessuna mensa trovata",
+            emptyMessage = "Nessuna mensa trovata nel raggio selezionato",
             contentPadding = PaddingValues(
                 horizontal = Dimensions.screenHorizontalPadding,
                 vertical = 8.dp

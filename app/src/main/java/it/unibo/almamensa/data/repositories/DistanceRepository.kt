@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.double
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -47,12 +47,19 @@ class DistanceRepositoryImpl(private val httpClient: HttpClient) : DistanceRepos
         val durations = json.jsonObject["durations"]
             ?: throw Exception("ORS error: $responseText")
 
-        return canteens.mapIndexed { index, canteen ->
-            CanteenDistance(
-                canteen = canteen,
-                distanceMeters = distances.jsonArray[0].jsonArray[index].jsonPrimitive.double,
-                durationSeconds = durations.jsonArray[0].jsonArray[index].jsonPrimitive.double
-            )
+        return canteens.mapIndexedNotNull { index, canteen ->
+            val distanceMeters = distances.jsonArray[0].jsonArray[index].jsonPrimitive.doubleOrNull
+            val durationSeconds = durations.jsonArray[0].jsonArray[index].jsonPrimitive.doubleOrNull
+
+            if (distanceMeters != null && durationSeconds != null) {
+                CanteenDistance(
+                    canteen = canteen,
+                    distanceMeters = distanceMeters,
+                    durationSeconds = durationSeconds
+                )
+            } else {
+                null
+            }
         }
     }
 }
