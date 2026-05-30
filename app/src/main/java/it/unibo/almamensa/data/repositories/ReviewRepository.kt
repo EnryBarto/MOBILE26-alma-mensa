@@ -3,6 +3,7 @@ package it.unibo.almamensa.data.repositories
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.result.PostgrestResult
 import it.unibo.almamensa.data.model.Review
 import it.unibo.almamensa.data.model.dto.ReviewWithCanteenDto
@@ -39,6 +40,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 filter {
                     eq("canteen_id", canteenId)
                 }
+                order("created_at", Order.DESCENDING)
             }
             .decodeList<Review>()
 
@@ -48,6 +50,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 filter {
                     eq("user_id", userId)
                 }
+                order("created_at", Order.DESCENDING)
             }
             .decodeList<Review>()
 
@@ -57,6 +60,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 filter {
                     eq("user_id", userId)
                 }
+                order("created_at", Order.DESCENDING)
             }
             .decodeList<ReviewWithCanteenDto>()
     }
@@ -67,6 +71,7 @@ class ReviewRepositoryImpl(private val supabase: SupabaseClient) : ReviewReposit
                 filter {
                     eq("canteen_id", canteenId)
                 }
+                order("created_at", Order.DESCENDING)
             }
             .decodeList<ReviewWithUserDto>()
     }
