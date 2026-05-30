@@ -13,4 +13,6 @@ object Dimensions {
     val topAppBarPortraitHeight = TopAppBarDefaults.TopAppBarExpandedHeight
     val topAppBarLandscapeHeight = 45.dp
     val reviewDescriptionTextFieldHeight = 150.dp
+    val bottomButtonBarTopPadding = 8.dp
+    val bottomButtonBarBottomPadding = bottomButtonBarTopPadding * 2
 }
