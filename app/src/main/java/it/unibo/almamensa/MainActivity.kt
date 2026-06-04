@@ -29,10 +29,11 @@ class MainActivity : FragmentActivity() {
 
     private val supabase: SupabaseClient by inject()
     private val userRepository: UserRepository by inject()
+    var handleDeepLinkIntent: ((Intent) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // Handle deeplink when the app is not running
         intent?.let { handleDeepLink(it) }
 
@@ -69,8 +70,9 @@ class MainActivity : FragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Handle deep link when the app is already running
+        setIntent(intent)
         handleDeepLink(intent)
+        handleDeepLinkIntent?.invoke(intent)
     }
 
     private fun handleDeepLink(intent: Intent) {

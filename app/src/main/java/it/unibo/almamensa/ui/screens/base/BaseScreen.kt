@@ -10,17 +10,21 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.jan.supabase.auth.status.SessionStatus
+import it.unibo.almamensa.MainActivity
 import it.unibo.almamensa.ui.AlmaMensaNavGraph
 import it.unibo.almamensa.ui.AlmaMensaRoute
 import it.unibo.almamensa.ui.composables.AppBar
@@ -52,6 +56,31 @@ fun BaseScreen(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     )
     val authState by authVm.state.collectAsStateWithLifecycle()
+
+    val activity = LocalActivity.current as MainActivity
+
+    DisposableEffect(navController) {
+        activity.handleDeepLinkIntent = { intent ->
+            intent.data?.let { uri ->
+                // Handle only route links
+                if (uri.scheme == "https" && uri.host == "almamensa-e4631.web.app") {
+                    val request = NavDeepLinkRequest.Builder
+                    .fromUri(uri)
+                    .build()
+
+                    navController.navigate(
+                        request,
+                        navOptions = NavOptions.Builder()
+                            .setPopUpTo<AlmaMensaRoute.CanteenDetails>(inclusive = true, saveState = false)
+                            .build()
+                    )
+                }
+            }
+        }
+        onDispose {
+            activity.handleDeepLinkIntent = null
+        }
+    }
 
     // Close the drawer if it's open when the back button is pressed instead of closing the application
     BackHandler(enabled = drawerState.isOpen) {
